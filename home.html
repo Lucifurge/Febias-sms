@@ -6,103 +6,179 @@
   <title>Febias College of Bible - SMS Home</title>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <style>
-    body { font-family: "Poppins", sans-serif; background-color: #f9fdf9; color: #1e3a1e; margin: 0; padding: 0; }
-    header { background-color: #2e7d32; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    header h1 { margin: 0; font-size: 1.4em; }
-    .logout-btn { background-color: #f44336; border: none; color: white; padding: 8px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
-    .logout-btn:hover { background-color: #d32f2f; }
-    main { padding: 20px; }
-    .welcome { margin-bottom: 30px; }
-    .departments { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-    .card { background: white; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 20px; text-align: center; transition: transform 0.2s; cursor: pointer; }
-    .card:hover { transform: translateY(-5px); }
-    .card h3 { color: #2e7d32; }
-    footer { text-align: center; padding: 15px; font-size: 0.9em; background: #e8f5e9; margin-top: 40px; }
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #f9fdf9;
+      color: #1e3a1e;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Side Panel */
+    .side-panel {
+      width: 250px;
+      background-color: #2e7d32;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
+    .side-panel h2 {
+      padding: 20px;
+      margin: 0;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .menu-item {
+      padding: 15px 20px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.2s;
+    }
+    .menu-item:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    header {
+      background-color: #2e7d32;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .logout-btn {
+      background-color: #f44336;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .logout-btn:hover {
+      background-color: #d32f2f;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card h3 {
+      margin: 0;
+      color: #2e7d32;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Febias College of Bible - Student Management System</h1>
-    <button class="logout-btn" id="logoutBtn">Logout</button>
-  </header>
 
-  <main>
+  <!-- Side Panel Menu -->
+  <div class="side-panel" id="sidePanel">
+    <h2>Menu</h2>
+    <div class="menu-item" onclick="loadHome()">Home</div>
+    <div class="menu-item" onclick="loadDeanDashboard()">Dean Dashboard</div>
+    <div class="menu-item" onclick="loadFacultyManagement()">Faculty Management</div>
+    <div class="menu-item" onclick="loadAcademicReports()">Academic Reports</div>
+  </div>
+
+  <!-- Main Content -->
+  <main id="mainContent">
+    <header>
+      <h1>Febias College of Bible - Student Management System</h1>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </header>
+
     <div class="welcome">
       <h2>Welcome, <span id="userName">Loading...</span></h2>
       <p>Role: <span id="userRole">Loading...</span></p>
     </div>
 
-    <section>
-      <h3>Departments</h3>
-      <div class="departments" id="departmentList">
-        <div class="card">Loading departments...</div>
-      </div>
+    <section id="contentArea">
+      <p>Loading home content...</p>
     </section>
   </main>
 
-  <footer>
-    &copy; 2025 Febias College of Bible - All Rights Reserved.
-  </footer>
 <script>
   const user = JSON.parse(localStorage.getItem("user"));
-  if (!user || !user.id_number || !user.role) {
-    window.location.href = "index.html";
-  }
+  if (!user || !user.id_number || !user.role) window.location.href = "index.html";
 
   document.getElementById("userName").textContent = user.full_name;
   document.getElementById("userRole").textContent = user.role;
 
-  if (user.role === "dean") {
-    showDeanOptions();
-  } else {
-    loadDepartments(); // fallback for students/faculty
+  const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+  // Load Home (Departments)
+  async function loadHome() {
+    const { data, error } = await supabase.from("departments").select("*");
+    const area = document.getElementById("contentArea");
+    if (error || !data) {
+      area.innerHTML = "<p>Failed to load departments.</p>";
+      return;
+    }
+
+    area.innerHTML = "";
+    data.forEach(dept => {
+      const div = document.createElement("div");
+      div.classList.add("card");
+      div.innerHTML = `<h3>${dept.name}</h3><p>Term type: <strong>${dept.term_type}</strong></p>`;
+      div.onclick = () => alert(`Opening ${dept.name} section...`);
+      area.appendChild(div);
+    });
   }
 
-  function showDeanOptions() {
-    const list = document.getElementById("departmentList");
-    list.innerHTML = `
-      <div class="card" onclick="alert('Opening Dean Dashboard...')">
+  function loadDeanDashboard() {
+    const area = document.getElementById("contentArea");
+    area.innerHTML = `
+      <div class="card">
         <h3>Dean Dashboard</h3>
         <p>Manage departments, faculty, and reports</p>
       </div>
-      <div class="card" onclick="alert('Opening Faculty Management...')">
+    `;
+  }
+
+  function loadFacultyManagement() {
+    const area = document.getElementById("contentArea");
+    area.innerHTML = `
+      <div class="card">
         <h3>Faculty Management</h3>
         <p>Assign faculty and view roles</p>
       </div>
-      <div class="card" onclick="alert('Opening Academic Reports...')">
+    `;
+  }
+
+  function loadAcademicReports() {
+    const area = document.getElementById("contentArea");
+    area.innerHTML = `
+      <div class="card">
         <h3>Academic Reports</h3>
         <p>Generate and review performance data</p>
       </div>
     `;
   }
 
-  async function loadDepartments() {
-    const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-    const { data, error } = await supabase.from("departments").select("*");
-    const list = document.getElementById("departmentList");
-
-    if (error || !data) {
-      list.innerHTML = "<p>Failed to load departments.</p>";
-      return;
-    }
-
-    list.innerHTML = "";
-    data.forEach(dept => {
-      const div = document.createElement("div");
-      div.classList.add("card");
-      div.innerHTML = `<h3>${dept.name}</h3><p>Term type: <strong>${dept.term_type}</strong></p>`;
-      div.onclick = () => alert(`Opening ${dept.name} section...`);
-      list.appendChild(div);
-    });
-  }
-
   document.getElementById("logoutBtn").onclick = () => {
     localStorage.clear();
     window.location.href = "index.html";
   };
+
+  // Load home by default
+  loadHome();
 </script>
 </body>
 </html>
