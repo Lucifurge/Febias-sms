@@ -1,51 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Febias College of Bible - SMS</title>
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
+
 <style>
-  /* --- Reset & Fonts --- */
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: "Poppins", sans-serif; background: #f0f4f0; display: flex; height: 100vh; overflow: hidden; }
+/* --- Reset & Fonts --- */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
-  /* --- Sidebar --- */
-  .side-panel { width: 240px; background: #2e7d32; color: #fff; display: flex; flex-direction: column; transition: 0.3s; }
-  .side-panel h2 { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 1.3rem; }
-  .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
-  .menu-item:hover { background: rgba(255,255,255,0.15); }
+body {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #f0f4f0;
+}
 
-  /* --- Collapse Button --- */
-  .toggle-btn { display: none; position: absolute; top: 15px; left: 260px; font-size: 1.5rem; cursor: pointer; color: #2e7d32; }
+/* --- Sidebar --- */
+.side-panel {
+  width: 250px;
+  background: #1b3a1b; /* Dark Green */
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  border-right: 4px solid #d4af37; /* Gold border */
+  transition: 0.3s;
+}
+.side-panel h2 {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 2px solid #d4af37;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+.menu-item {
+  padding: 15px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  transition: 0.2s;
+}
+.menu-item:hover {
+  background: rgba(212,175,55,0.15); /* subtle gold hover */
+}
 
-  /* --- Main Content --- */
-  main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; transition: margin-left 0.3s; }
-  header { background: #2e7d32; color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-  .logout-btn { background: #f44336; border: none; padding: 8px 16px; border-radius: 6px; color: #fff; cursor: pointer; transition: 0.3s; }
-  .logout-btn:hover { background: #d32f2f; }
+/* --- Toggle Button (mobile) --- */
+.toggle-btn {
+  display: none;
+  position: absolute;
+  top: 15px;
+  left: 260px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #1b3a1b;
+}
 
-  /* --- Welcome --- */
-  .welcome { padding: 20px 30px; background: #e8f5e9; border-left: 5px solid #2e7d32; margin: 15px 30px; border-radius: 8px; }
-  .welcome h2 { font-size: 1.5rem; margin-bottom: 5px; }
-  .welcome p { font-size: 1rem; color: #2e7d32; }
+/* --- Main Content --- */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: margin-left 0.3s;
+}
+header {
+  background: #1b3a1b;
+  color: #fff;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #d4af37;
+}
+.logout-btn {
+  background: #d4af37; /* gold button */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: #1b3a1b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.logout-btn:hover { background: #c49e2c; }
 
-  /* --- Cards --- */
-  #contentArea { padding: 20px 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-  .card { background: #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 20px; transition: transform 0.2s; cursor: pointer; }
-  .card:hover { transform: translateY(-5px); }
-  .card h3 { color: #2e7d32; margin-bottom: 10px; }
+/* --- Welcome Section --- */
+.welcome {
+  padding: 20px 30px;
+  background: #2e7d32; /* medium green */
+  border-left: 5px solid #d4af37;
+  color: #fff;
+  margin: 15px 30px;
+  border-radius: 8px;
+}
+.welcome h2 { font-size: 1.5rem; margin-bottom: 5px; }
+.welcome p { font-size: 1rem; }
 
-  /* --- Responsive --- */
-  @media (max-width: 768px) {
-    .side-panel { position: absolute; left: -250px; z-index: 100; height: 100%; }
-    .toggle-btn { display: block; }
-    main { margin-left: 0 !important; }
-  }
+/* --- Cards --- */
+#contentArea {
+  padding: 20px 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.card {
+  background: #fff;
+  border: 2px solid #d4af37; /* gold border */
+  border-radius: 10px;
+  padding: 20px;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+.card:hover { transform: translateY(-5px); }
+.card h3 { color: #1b3a1b; margin-bottom: 10px; }
+.card p { color: #333; }
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .side-panel { position: absolute; left: -250px; z-index: 100; height: 100%; }
+  .toggle-btn { display: block; }
+  main { margin-left: 0 !important; }
+}
 </style>
 </head>
-<body>
 
+<body>
 <!-- Sidebar -->
 <div class="side-panel" id="sidePanel">
   <h2>Menu</h2>
@@ -79,16 +158,16 @@ document.getElementById("userName").textContent = user.full_name;
 document.getElementById("userRole").textContent = user.role;
 
 const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
+const supabaseKey = "YOUR_SUPABASE_KEY";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Build side panel dynamically
+// Build sidebar
 const sidePanel = document.getElementById("sidePanel");
 sidePanel.innerHTML = `<h2>Menu</h2><div class="menu-item" onclick="loadHome()">Home</div>`;
 
 const menuConfig = {
-  dean: ["Dean Dashboard", "Faculty Management", "Academic Reports"],
-  faculty: ["Faculty Management", "Academic Reports"],
+  dean: ["Departments", "Courses", "Faculty"],
+  faculty: ["My Courses", "Students"],
   student: ["My Profile", "My Grades", "My Payments"]
 };
 
@@ -99,33 +178,84 @@ if (menuConfig[user.role]) {
   });
 }
 
-// Load content functions
+// Load Home - display database content dynamically
 async function loadHome() {
-  const { data, error } = await supabase.from("departments").select("*");
   const area = document.getElementById("contentArea");
-  if (error || !data) { area.innerHTML = "<p>Failed to load departments.</p>"; return; }
+  area.innerHTML = "<p>Loading departments...</p>";
+  
+  if(user.role === "student") {
+    // Show profile info
+    const { data: grades } = await supabase.from("grades").select("*").eq("student_id", user.id_number);
+    area.innerHTML = `<div class="card"><h3>My Profile</h3>
+      Name: ${user.full_name}<br>ID: ${user.id_number}<br>Department: ${user.department_id || "N/A"}</div>`;
+    if(grades && grades.length) {
+      grades.forEach(g => {
+        const div = document.createElement("div");
+        div.classList.add("card");
+        div.innerHTML = `<h3>${g.course_name}</h3>
+          <p>Prelim: ${g.prelim || "-"} | Midterm: ${g.midterm || "-"} | Final: ${g.final || "-"}<br>
+          Remarks: ${g.remarks || "-"}</p>`;
+        area.appendChild(div);
+      });
+    }
+  } else if(user.role === "dean" || user.role === "faculty") {
+    const { data: depts } = await supabase.from("departments").select("*");
+    const { data: courses } = await supabase.from("courses").select("*");
+    area.innerHTML = "";
+    if(depts) depts.forEach(d => {
+      const div = document.createElement("div");
+      div.classList.add("card");
+      div.innerHTML = `<h3>Department: ${d.name}</h3><p>Term type: ${d.term_type}</p>`;
+      area.appendChild(div);
+    });
+    if(courses) courses.forEach(c => {
+      const div = document.createElement("div");
+      div.classList.add("card");
+      div.innerHTML = `<h3>Course: ${c.title} (${c.code})</h3><p>Units: ${c.units}</p>`;
+      area.appendChild(div);
+    });
+  }
+}
+
+// Role-based functions
+async function Departments() { await loadHome(); }
+async function Courses() { await loadHome(); }
+async function Faculty() {
+  const area = document.getElementById("contentArea");
+  const { data: faculty } = await supabase.from("users").select("*").eq("role","faculty");
   area.innerHTML = "";
-  data.forEach(dept => {
+  faculty.forEach(f => {
     const div = document.createElement("div");
     div.classList.add("card");
-    div.innerHTML = `<h3>${dept.name}</h3><p>Term: <strong>${dept.term_type}</strong></p>`;
-    div.onclick = () => alert(`Opening ${dept.name} section...`);
+    div.innerHTML = `<h3>${f.full_name}</h3><p>ID: ${f.id_number} | Dept: ${f.department_id}</p>`;
     area.appendChild(div);
   });
 }
-
-// Example content loaders
-function DeanDashboard() { showCard("Dean Dashboard","Manage departments, faculty, and reports"); }
-function FacultyManagement() { showCard("Faculty Management","Assign faculty and view roles"); }
-function AcademicReports() { showCard("Academic Reports","Generate and review performance data"); }
-function MyProfile() { showCard("My Profile", `Name: ${user.full_name}<br>ID: ${user.id_number}`); }
-function MyGrades() { showCard("My Grades","Grades will load here..."); }
-function MyPayments() { showCard("My Payments","Payments will load here..."); }
-
-function showCard(title, content) {
+async function MyCourses() {
   const area = document.getElementById("contentArea");
-  area.innerHTML = `<div class="card"><h3>${title}</h3><p>${content}</p></div>`;
+  const { data: courses } = await supabase.from("courses").select("*").eq("faculty_id", user.id_number);
+  area.innerHTML = "";
+  courses.forEach(c => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `<h3>${c.title} (${c.code})</h3><p>Units: ${c.units}</p>`;
+    area.appendChild(div);
+  });
 }
+async function Students() {
+  const area = document.getElementById("contentArea");
+  const { data: students } = await supabase.from("users").select("*").eq("role","student");
+  area.innerHTML = "";
+  students.forEach(s => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `<h3>${s.full_name}</h3><p>ID: ${s.id_number} | Dept: ${s.department_id}</p>`;
+    area.appendChild(div);
+  });
+}
+async function MyProfile() { await loadHome(); }
+async function MyGrades() { await loadHome(); }
+async function MyPayments() { await loadHome(); }
 
 // Logout
 document.getElementById("logoutBtn").onclick = () => { localStorage.clear(); window.location.href="index.html"; };
