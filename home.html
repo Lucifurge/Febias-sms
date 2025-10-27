@@ -155,9 +155,35 @@ header {
 
 /* --- Responsive --- */
 @media (max-width: 1024px) {
-  .side-panel { position: absolute; left: -250px; z-index: 100; height: 100%; }
-  .toggle-btn { display: block; }
-  main { margin-left: 0 !important; }
+  body { overflow-x: hidden; }
+  .side-panel {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    height: 100%;
+    z-index: 200;
+    transition: left 0.3s ease;
+  }
+  .side-panel.open { left: 0; }
+  .toggle-btn {
+    display: block;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 300;
+    background: #d4af37;
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: #1b3a1b;
+  }
+  main.dimmed::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3);
+    z-index: 150;
+  }
 }
 </style>
 </head>
@@ -218,7 +244,7 @@ if(menuConfig[user.role]){
   });
 }
 
-// Sidebar hover
+// Sidebar hover for desktop
 let sidebarHoverTimeout;
 sidePanel.addEventListener('mouseenter', () => sidePanel.classList.remove('collapsed'));
 sidePanel.addEventListener('mouseleave', () => { 
@@ -229,8 +255,28 @@ window.addEventListener('load', ()=>{ if(window.innerWidth>1024) sidePanel.class
 // Mobile toggle
 const toggleBtn = document.getElementById("toggleBtn");
 toggleBtn.onclick = () => {
-  sidePanel.style.left = (sidePanel.style.left === "0px") ? "-250px" : "0px";
+  const isOpen = sidePanel.classList.contains("open");
+  sidePanel.classList.toggle("open", !isOpen);
+  if(window.innerWidth <= 1024){
+    document.getElementById("mainContent").classList.toggle("dimmed", !isOpen);
+  }
 };
+
+// Close sidebar when clicking outside on mobile
+document.getElementById("mainContent").addEventListener("click", ()=>{
+  if(window.innerWidth <= 1024 && sidePanel.classList.contains("open")){
+    sidePanel.classList.remove("open");
+    document.getElementById("mainContent").classList.remove("dimmed");
+  }
+});
+
+// Ensure sidebar resets on resize
+window.addEventListener('resize', ()=>{
+  if(window.innerWidth > 1024){
+    sidePanel.classList.remove("open");
+    document.getElementById("mainContent").classList.remove("dimmed");
+  }
+});
 
 // Load Home
 async function loadHome(){
@@ -251,10 +297,9 @@ async function Departments(){
       deptDiv.classList.add("card");
       deptDiv.innerHTML = `<h3>${d.name}</h3><p>Term Type: ${d.term_type}</p>`;
       const courseList = document.createElement("div");
-      courseList.style.display = "none"; // hidden by default
+      courseList.style.display = "none";
       courseList.style.marginTop = "10px";
 
-      // Fetch courses for this department
       const { data: courses } = await supabase.from("courses")
         .select("*")
         .eq("department_id", d.id)
@@ -275,7 +320,6 @@ async function Departments(){
         courseList.appendChild(emptyDiv);
       }
 
-      // Toggle courses on click
       deptDiv.addEventListener("click", ()=> {
         courseList.style.display = courseList.style.display === "none" ? "block" : "none";
       });
