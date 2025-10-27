@@ -207,7 +207,7 @@ sidePanel.innerHTML += `<div class="menu-item" onclick="loadHome()">Home</div>`;
 
 // Menu config
 const menuConfig = {
-  dean: ["Departments","Courses","Faculty"],
+  dean: ["Departments","Faculty"],
   faculty: ["My Courses","Students"],
   student: ["My Profile","My Grades","My Payments"]
 };
@@ -218,7 +218,7 @@ if(menuConfig[user.role]){
   });
 }
 
-// Auto-hide sidebar on desktop
+// Sidebar hover
 let sidebarHoverTimeout;
 sidePanel.addEventListener('mouseenter', () => sidePanel.classList.remove('collapsed'));
 sidePanel.addEventListener('mouseleave', () => { 
@@ -232,48 +232,62 @@ toggleBtn.onclick = () => {
   sidePanel.style.left = (sidePanel.style.left === "0px") ? "-250px" : "0px";
 };
 
-// Load content dynamically
+// Load Home
 async function loadHome(){
   const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading...</p>";
+  area.innerHTML = "<p>Welcome! Select a menu option.</p>";
+}
 
-  if(user.role==="student"){
-    const { data: grades } = await supabase.from("grades").select("*").eq("student_id",user.id_number);
-    area.innerHTML = `<div class="card"><h3>My Profile</h3>
-      Name: ${user.full_name}<br>ID: ${user.id_number}<br>Dept: ${user.department_id||'N/A'}</div>`;
-    if(grades && grades.length){
-      grades.forEach(g=>{
-        const div = document.createElement("div");
-        div.classList.add("card");
-        div.innerHTML = `<h3>${g.course_name}</h3>
-          <p>Prelim: ${g.prelim||'-'} | Midterm: ${g.midterm||'-'} | Final: ${g.final||'-'}<br>
-          Remarks: ${g.remarks||'-'}</p>`;
-        area.appendChild(div);
+// --- Departments with dropdown courses ---
+async function Departments(){
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading Departments...</p>";
+
+  const { data: depts } = await supabase.from("departments").select("*").order("name");
+  area.innerHTML = "";
+  if(depts){
+    for(const d of depts){
+      const deptDiv = document.createElement("div");
+      deptDiv.classList.add("card");
+      deptDiv.innerHTML = `<h3>${d.name}</h3><p>Term Type: ${d.term_type}</p>`;
+      const courseList = document.createElement("div");
+      courseList.style.display = "none"; // hidden by default
+      courseList.style.marginTop = "10px";
+
+      // Fetch courses for this department
+      const { data: courses } = await supabase.from("courses")
+        .select("*")
+        .eq("department_id", d.id)
+        .order("code");
+
+      if(courses && courses.length){
+        courses.forEach(c=>{
+          const cDiv = document.createElement("div");
+          cDiv.style.padding = "5px 10px";
+          cDiv.style.borderTop = "1px solid #d4af37";
+          cDiv.innerHTML = `${c.title} (${c.code}) - ${c.units} units`;
+          courseList.appendChild(cDiv);
+        });
+      } else {
+        const emptyDiv = document.createElement("div");
+        emptyDiv.style.padding = "5px 10px";
+        emptyDiv.innerHTML = "No courses available";
+        courseList.appendChild(emptyDiv);
+      }
+
+      // Toggle courses on click
+      deptDiv.addEventListener("click", ()=> {
+        courseList.style.display = courseList.style.display === "none" ? "block" : "none";
       });
+
+      deptDiv.appendChild(courseList);
+      area.appendChild(deptDiv);
     }
-  } else {
-    const { data: depts } = await supabase.from("departments").select("*");
-    const { data: courses } = await supabase.from("courses").select("*");
-    area.innerHTML = "";
-    if(depts) depts.forEach(d=>{
-      const div = document.createElement("div");
-      div.classList.add("card");
-      div.innerHTML = `<h3>Department: ${d.name}</h3><p>Term: ${d.term_type}</p>`;
-      area.appendChild(div);
-    });
-    if(courses) courses.forEach(c=>{
-      const div = document.createElement("div");
-      div.classList.add("card");
-      div.innerHTML = `<h3>Course: ${c.title} (${c.code})</h3><p>Units: ${c.units}</p>`;
-      area.appendChild(div);
-    });
   }
 }
 
-// Role-based functions
-const Departments = async()=>{await loadHome();};
-const Courses = async()=>{await loadHome();};
-const Faculty = async()=>{
+// --- Faculty ---
+async function Faculty(){
   const area = document.getElementById("contentArea");
   const { data: faculty } = await supabase.from("users").select("*").eq("role","faculty");
   area.innerHTML="";
@@ -283,32 +297,14 @@ const Faculty = async()=>{
     div.innerHTML=`<h3>${f.full_name}</h3><p>ID: ${f.id_number} | Dept: ${f.department_id}</p>`;
     area.appendChild(div);
   });
-};
-const MyCourses = async()=>{
-  const area = document.getElementById("contentArea");
-  const { data: courses } = await supabase.from("courses").select("*").eq("faculty_id", user.id_number);
-  area.innerHTML="";
-  courses.forEach(c=>{
-    const div=document.createElement("div");
-    div.classList.add("card");
-    div.innerHTML=`<h3>${c.title} (${c.code})</h3><p>Units: ${c.units}</p>`;
-    area.appendChild(div);
-  });
-};
-const Students = async()=>{
-  const area = document.getElementById("contentArea");
-  const { data: students } = await supabase.from("users").select("*").eq("role","student");
-  area.innerHTML="";
-  students.forEach(s=>{
-    const div=document.createElement("div");
-    div.classList.add("card");
-    div.innerHTML=`<h3>${s.full_name}</h3><p>ID: ${s.id_number} | Dept: ${s.department_id}</p>`;
-    area.appendChild(div);
-  });
-};
-const MyProfile = async()=>{await loadHome();}
-const MyGrades = async()=>{await loadHome();}
-const MyPayments = async()=>{await loadHome();}
+}
+
+// --- Student role examples ---
+async function MyCourses(){ await loadHome(); }
+async function Students(){ await loadHome(); }
+async function MyProfile(){ await loadHome(); }
+async function MyGrades(){ await loadHome(); }
+async function MyPayments(){ await loadHome(); }
 
 // Logout
 document.getElementById("logoutBtn").onclick=()=>{localStorage.clear(); window.location.href="index.html";};
@@ -316,5 +312,6 @@ document.getElementById("logoutBtn").onclick=()=>{localStorage.clear(); window.l
 // Load home by default
 loadHome();
 </script>
+
 </body>
 </html>
