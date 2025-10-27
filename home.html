@@ -31,16 +31,38 @@ body {
 .side-panel.collapsed {
   width: 60px;
 }
-.side-panel h2 {
-  padding: 20px;
-  text-align: center;
+
+/* Sidebar header with logo */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
   border-bottom: 2px solid #d4af37;
+  gap: 10px;
+}
+.logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+.side-panel.collapsed .logo {
+  width: 35px;
+  height: 35px;
+}
+.side-panel.collapsed h2 {
+  display: none;
+}
+
+.side-panel h2 {
   font-size: 1.3rem;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .menu-item {
   padding: 15px 20px;
   cursor: pointer;
@@ -143,7 +165,10 @@ header {
 <body>
 <!-- Sidebar -->
 <div class="side-panel" id="sidePanel">
-  <h2>Menu</h2>
+  <div class="sidebar-header">
+    <img src="fcb.png" alt="FCB Logo" class="logo">
+    <h2>Menu</h2>
+  </div>
 </div>
 
 <!-- Toggle Sidebar Button -->
@@ -178,7 +203,7 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 const sidePanel = document.getElementById("sidePanel");
-sidePanel.innerHTML = `<h2>Menu</h2><div class="menu-item" onclick="loadHome()">Home</div>`;
+sidePanel.innerHTML += `<div class="menu-item" onclick="loadHome()">Home</div>`;
 
 // Menu config
 const menuConfig = {
@@ -186,7 +211,6 @@ const menuConfig = {
   faculty: ["My Courses","Students"],
   student: ["My Profile","My Grades","My Payments"]
 };
-
 if(menuConfig[user.role]){
   menuConfig[user.role].forEach(item => {
     const fnName = item.replace(/\s/g,'');
@@ -196,8 +220,10 @@ if(menuConfig[user.role]){
 
 // Auto-hide sidebar on desktop
 let sidebarHoverTimeout;
-sidePanel.addEventListener('mouseenter', () => { sidePanel.classList.remove('collapsed'); });
-sidePanel.addEventListener('mouseleave', () => { sidebarHoverTimeout = setTimeout(()=>{ sidePanel.classList.add('collapsed'); },500); });
+sidePanel.addEventListener('mouseenter', () => sidePanel.classList.remove('collapsed'));
+sidePanel.addEventListener('mouseleave', () => { 
+  sidebarHoverTimeout = setTimeout(()=> sidePanel.classList.add('collapsed'), 500); 
+});
 window.addEventListener('load', ()=>{ if(window.innerWidth>1024) sidePanel.classList.add('collapsed'); });
 
 // Mobile toggle
