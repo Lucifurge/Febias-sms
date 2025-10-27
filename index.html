@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Febias College of Bible - SMS Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Febias College of Bible - SMS</title>
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
 
 <style>
-/* --- Base Reset --- */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
 body {
@@ -15,107 +14,88 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #0b6623, #2e7d32);
-  overflow: hidden;
+  background: #f9f9f9;
 }
 
-/* --- Glowing Container --- */
 .container {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(15px);
+  background: #ffffff;
   border-radius: 20px;
   padding: 50px 40px;
   width: 380px;
   text-align: center;
-  box-shadow: 0 0 30px rgba(0,255,0,0.4), 0 0 60px rgba(0,255,0,0.2);
-  border: 1px solid rgba(0,255,0,0.3);
-  animation: float 1.5s ease-in-out infinite alternate;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1), 0 0 15px rgba(218,165,32,0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-@keyframes float {
-  0% { transform: translateY(0px); }
-  100% { transform: translateY(-8px); }
+.container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15), 0 0 25px rgba(218,165,32,0.3);
 }
 
-/* --- Logo --- */
 .logo {
   font-size: 24px;
   font-weight: 700;
-  color: #00ff77;
-  letter-spacing: 2px;
-  text-shadow: 0 0 5px #00ff77, 0 0 10px #00ff77, 0 0 20px #00ff77;
+  color: #2e7d32; /* green */
+  letter-spacing: 1px;
   margin-bottom: 25px;
 }
 
-/* --- Heading --- */
 h2 {
-  color: #fff;
-  font-weight: 500;
+  color: #444;
   margin-bottom: 30px;
-  text-shadow: 0 0 5px #00ff77;
+  font-weight: 500;
 }
 
-/* --- Inputs --- */
 input {
   width: 100%;
   padding: 14px;
   margin: 12px 0;
-  border: none;
+  border: 1px solid #c9d6cc;
   border-radius: 10px;
   outline: none;
   font-size: 14px;
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-  box-shadow: 0 0 5px rgba(0,255,0,0.4);
   transition: 0.3s;
-}
-
-input::placeholder {
-  color: rgba(255,255,255,0.7);
+  background: #fefcf6; /* subtle white/gold tone */
 }
 
 input:focus {
-  background: rgba(255,255,255,0.2);
-  box-shadow: 0 0 10px #00ff77, 0 0 20px #00ff77;
+  border-color: #2e7d32;
+  box-shadow: 0 0 8px rgba(46,125,50,0.3);
 }
 
-/* --- Button --- */
 button {
   width: 100%;
   padding: 14px;
-  margin-top: 15px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(90deg, #00ff77, #0b6623);
-  color: #fff;
+  background: linear-gradient(90deg, #d4af37, #2e7d32); /* gold to green */
+  color: white;
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  letter-spacing: 0.5px;
-  box-shadow: 0 0 10px #00ff77, 0 0 20px #00ff77;
   transition: 0.3s;
+  margin-top: 15px;
 }
 
 button:hover {
-  background: linear-gradient(90deg, #0b6623, #00ff77);
-  box-shadow: 0 0 20px #00ff77, 0 0 40px #00ff77;
+  background: linear-gradient(90deg, #2e7d32, #d4af37);
+  box-shadow: 0 5px 15px rgba(46,125,50,0.3), 0 0 15px rgba(218,165,32,0.2);
 }
 
-/* --- Footer --- */
 .footer {
   margin-top: 25px;
   font-size: 13px;
-  color: #ccc;
-  text-shadow: 0 0 5px rgba(0,255,0,0.5);
+  color: #888;
 }
 
-/* --- Fade-in Animation --- */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.container { animation: fadeIn 0.8s ease-out; }
+.container {
+  animation: fadeIn 0.6s ease-out;
+}
 </style>
 </head>
 
@@ -125,8 +105,8 @@ button:hover {
   <h2>School Management System</h2>
 
   <form id="loginForm">
-    <input type="text" id="idNumber" placeholder="Enter your ID Number" required />
-    <input type="password" id="password" placeholder="Enter your Password" required />
+    <input type="text" id="idNumber" placeholder="Enter your ID Number" required>
+    <input type="password" id="password" placeholder="Enter your Password" required>
     <button type="submit">Login</button>
   </form>
 
