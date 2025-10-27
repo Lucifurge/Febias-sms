@@ -1,145 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Febias College of Bible - SMS Home</title>
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <style>
-    body { font-family: "Poppins", sans-serif; background-color: #f9fdf9; color: #1e3a1e; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
-    .side-panel { width: 250px; background-color: #2e7d32; color: white; display: flex; flex-direction: column; transition: transform 0.3s ease; }
-    .side-panel h2 { padding: 20px; margin: 0; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); }
-    .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); transition: background 0.2s; }
-    .menu-item:hover { background-color: rgba(255,255,255,0.1); }
-    main { flex: 1; padding: 20px; overflow-y: auto; }
-    header { background-color: #2e7d32; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .logout-btn { background-color: #f44336; border: none; color: white; padding: 8px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
-    .logout-btn:hover { background-color: #d32f2f; }
-    .card { background: white; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
-    .card h3 { margin: 0; color: #2e7d32; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Febias College of Bible - SMS</title>
+<script src="https://unpkg.com/@supabase/supabase-js"></script>
+<style>
+  /* --- Reset & Fonts --- */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Poppins", sans-serif; background: #f0f4f0; display: flex; height: 100vh; overflow: hidden; }
+
+  /* --- Sidebar --- */
+  .side-panel { width: 240px; background: #2e7d32; color: #fff; display: flex; flex-direction: column; transition: 0.3s; }
+  .side-panel h2 { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 1.3rem; }
+  .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
+  .menu-item:hover { background: rgba(255,255,255,0.15); }
+
+  /* --- Collapse Button --- */
+  .toggle-btn { display: none; position: absolute; top: 15px; left: 260px; font-size: 1.5rem; cursor: pointer; color: #2e7d32; }
+
+  /* --- Main Content --- */
+  main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; transition: margin-left 0.3s; }
+  header { background: #2e7d32; color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .logout-btn { background: #f44336; border: none; padding: 8px 16px; border-radius: 6px; color: #fff; cursor: pointer; transition: 0.3s; }
+  .logout-btn:hover { background: #d32f2f; }
+
+  /* --- Welcome --- */
+  .welcome { padding: 20px 30px; background: #e8f5e9; border-left: 5px solid #2e7d32; margin: 15px 30px; border-radius: 8px; }
+  .welcome h2 { font-size: 1.5rem; margin-bottom: 5px; }
+  .welcome p { font-size: 1rem; color: #2e7d32; }
+
+  /* --- Cards --- */
+  #contentArea { padding: 20px 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .card { background: #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 20px; transition: transform 0.2s; cursor: pointer; }
+  .card:hover { transform: translateY(-5px); }
+  .card h3 { color: #2e7d32; margin-bottom: 10px; }
+
+  /* --- Responsive --- */
+  @media (max-width: 768px) {
+    .side-panel { position: absolute; left: -250px; z-index: 100; height: 100%; }
+    .toggle-btn { display: block; }
+    main { margin-left: 0 !important; }
+  }
+</style>
 </head>
 <body>
 
-  <!-- Side Panel Menu -->
-  <div class="side-panel" id="sidePanel">
-    <h2>Menu</h2>
-    <!-- Menu items will be dynamically inserted here -->
+<!-- Sidebar -->
+<div class="side-panel" id="sidePanel">
+  <h2>Menu</h2>
+</div>
+
+<!-- Toggle Sidebar Button -->
+<div class="toggle-btn" id="toggleBtn">&#9776;</div>
+
+<!-- Main -->
+<main id="mainContent">
+  <header>
+    <h1>Febias College of Bible - SMS</h1>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </header>
+
+  <div class="welcome">
+    <h2>Welcome, <span id="userName">Loading...</span></h2>
+    <p>Role: <span id="userRole">Loading...</span></p>
   </div>
 
-  <!-- Main Content -->
-  <main id="mainContent">
-    <header>
-      <h1>Febias College of Bible - Student Management System</h1>
-      <button class="logout-btn" id="logoutBtn">Logout</button>
-    </header>
-
-    <div class="welcome">
-      <h2>Welcome, <span id="userName">Loading...</span></h2>
-      <p>Role: <span id="userRole">Loading...</span></p>
-    </div>
-
-    <section id="contentArea">
-      <p>Loading home content...</p>
-    </section>
-  </main>
+  <section id="contentArea">
+    <p>Loading home content...</p>
+  </section>
+</main>
 
 <script>
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (!user || !user.id_number || !user.role) window.location.href = "index.html";
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user || !user.id_number || !user.role) window.location.href = "index.html";
 
-  document.getElementById("userName").textContent = user.full_name;
-  document.getElementById("userRole").textContent = user.role;
+document.getElementById("userName").textContent = user.full_name;
+document.getElementById("userRole").textContent = user.role;
 
-  const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
-  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-  // Dynamically build side panel based on role
-  const sidePanel = document.getElementById("sidePanel");
-  sidePanel.innerHTML = `<h2>Menu</h2>
-    <div class="menu-item" onclick="loadHome()">Home</div>`; // everyone has Home
+// Build side panel dynamically
+const sidePanel = document.getElementById("sidePanel");
+sidePanel.innerHTML = `<h2>Menu</h2><div class="menu-item" onclick="loadHome()">Home</div>`;
 
-  if (user.role === "dean") {
-    sidePanel.innerHTML += `
-      <div class="menu-item" onclick="loadDeanDashboard()">Dean Dashboard</div>
-      <div class="menu-item" onclick="loadFacultyManagement()">Faculty Management</div>
-      <div class="menu-item" onclick="loadAcademicReports()">Academic Reports</div>
-    `;
-  } else if (user.role === "faculty") {
-    sidePanel.innerHTML += `
-      <div class="menu-item" onclick="loadFacultyManagement()">Faculty Management</div>
-      <div class="menu-item" onclick="loadAcademicReports()">Academic Reports</div>
-    `;
-  } else if (user.role === "student") {
-    sidePanel.innerHTML += `
-      <div class="menu-item" onclick="loadProfile()">My Profile</div>
-      <div class="menu-item" onclick="loadMyGrades()">My Grades</div>
-      <div class="menu-item" onclick="loadMyPayments()">My Payments</div>
-    `;
-  }
+const menuConfig = {
+  dean: ["Dean Dashboard", "Faculty Management", "Academic Reports"],
+  faculty: ["Faculty Management", "Academic Reports"],
+  student: ["My Profile", "My Grades", "My Payments"]
+};
 
-  // Functions for loading content
-  async function loadHome() {
-    const { data, error } = await supabase.from("departments").select("*");
-    const area = document.getElementById("contentArea");
-    if (error || !data) {
-      area.innerHTML = "<p>Failed to load departments.</p>";
-      return;
-    }
-    area.innerHTML = "";
-    data.forEach(dept => {
-      const div = document.createElement("div");
-      div.classList.add("card");
-      div.innerHTML = `<h3>${dept.name}</h3><p>Term type: <strong>${dept.term_type}</strong></p>`;
-      div.onclick = () => alert(`Opening ${dept.name} section...`);
-      area.appendChild(div);
-    });
-  }
+if (menuConfig[user.role]) {
+  menuConfig[user.role].forEach(item => {
+    const fnName = item.replace(/\s/g, "");
+    sidePanel.innerHTML += `<div class="menu-item" onclick="${fnName}()">${item}</div>`;
+  });
+}
 
-  function loadDeanDashboard() {
-    document.getElementById("contentArea").innerHTML = `
-      <div class="card"><h3>Dean Dashboard</h3><p>Manage departments, faculty, and reports</p></div>
-    `;
-  }
+// Load content functions
+async function loadHome() {
+  const { data, error } = await supabase.from("departments").select("*");
+  const area = document.getElementById("contentArea");
+  if (error || !data) { area.innerHTML = "<p>Failed to load departments.</p>"; return; }
+  area.innerHTML = "";
+  data.forEach(dept => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `<h3>${dept.name}</h3><p>Term: <strong>${dept.term_type}</strong></p>`;
+    div.onclick = () => alert(`Opening ${dept.name} section...`);
+    area.appendChild(div);
+  });
+}
 
-  function loadFacultyManagement() {
-    document.getElementById("contentArea").innerHTML = `
-      <div class="card"><h3>Faculty Management</h3><p>Assign faculty and view roles</p></div>
-    `;
-  }
+// Example content loaders
+function DeanDashboard() { showCard("Dean Dashboard","Manage departments, faculty, and reports"); }
+function FacultyManagement() { showCard("Faculty Management","Assign faculty and view roles"); }
+function AcademicReports() { showCard("Academic Reports","Generate and review performance data"); }
+function MyProfile() { showCard("My Profile", `Name: ${user.full_name}<br>ID: ${user.id_number}`); }
+function MyGrades() { showCard("My Grades","Grades will load here..."); }
+function MyPayments() { showCard("My Payments","Payments will load here..."); }
 
-  function loadAcademicReports() {
-    document.getElementById("contentArea").innerHTML = `
-      <div class="card"><h3>Academic Reports</h3><p>Generate and review performance data</p></div>
-    `;
-  }
+function showCard(title, content) {
+  const area = document.getElementById("contentArea");
+  area.innerHTML = `<div class="card"><h3>${title}</h3><p>${content}</p></div>`;
+}
 
-  function loadProfile() {
-    document.getElementById("contentArea").innerHTML = `
-      <div class="card"><h3>My Profile</h3><p>Name: ${user.full_name}<br>ID: ${user.id_number}</p></div>
-    `;
-  }
+// Logout
+document.getElementById("logoutBtn").onclick = () => { localStorage.clear(); window.location.href="index.html"; };
 
-  function loadMyGrades() {
-    document.getElementById("contentArea").innerHTML = `
-      <div class="card"><h3>My Grades</h3><p>Grades will load here...</p></div>
-    `;
-  }
+// Sidebar toggle
+const toggleBtn = document.getElementById("toggleBtn");
+toggleBtn.onclick = () => {
+  const sidebar = document.getElementById("sidePanel");
+  sidebar.style.left = (sidebar.style.left === "0px") ? "-250px" : "0px";
+};
 
-  function loadMyPayments() {
-    document.getElementById("contentArea").innerHTML = `
-      <div class="card"><h3>My Payments</h3><p>Payments will load here...</p></div>
-    `;
-  }
-
-  document.getElementById("logoutBtn").onclick = () => {
-    localStorage.clear();
-    window.location.href = "index.html";
-  };
-
-  // Load home by default
-  loadHome();
+// Load home by default
+loadHome();
 </script>
 </body>
 </html>
