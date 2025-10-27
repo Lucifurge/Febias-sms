@@ -20,12 +20,16 @@ body {
 /* --- Sidebar --- */
 .side-panel {
   width: 250px;
-  background: #1b3a1b; /* Dark Green */
+  background: #1b3a1b; 
   color: #fff;
   display: flex;
   flex-direction: column;
-  border-right: 4px solid #d4af37; /* Gold border */
-  transition: 0.3s;
+  border-right: 4px solid #d4af37; 
+  transition: all 0.3s ease;
+  position: relative;
+}
+.side-panel.collapsed {
+  width: 60px;
 }
 .side-panel h2 {
   padding: 20px;
@@ -33,18 +37,24 @@ body {
   border-bottom: 2px solid #d4af37;
   font-size: 1.3rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .menu-item {
   padding: 15px 20px;
   cursor: pointer;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   transition: 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .menu-item:hover {
-  background: rgba(212,175,55,0.15); /* subtle gold hover */
+  background: rgba(212,175,55,0.15); 
 }
 
-/* --- Toggle Button (mobile) --- */
+/* --- Toggle Button --- */
 .toggle-btn {
   display: none;
   position: absolute;
@@ -61,7 +71,7 @@ main {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  transition: margin-left 0.3s;
+  transition: margin-left 0.3s ease;
 }
 header {
   background: #1b3a1b;
@@ -71,9 +81,10 @@ header {
   justify-content: space-between;
   align-items: center;
   border-bottom: 3px solid #d4af37;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 .logout-btn {
-  background: #d4af37; /* gold button */
+  background: #d4af37; 
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
@@ -87,11 +98,12 @@ header {
 /* --- Welcome Section --- */
 .welcome {
   padding: 20px 30px;
-  background: #2e7d32; /* medium green */
+  background: #2e7d32; 
   border-left: 5px solid #d4af37;
   color: #fff;
   margin: 15px 30px;
   border-radius: 8px;
+  transition: all 0.3s;
 }
 .welcome h2 { font-size: 1.5rem; margin-bottom: 5px; }
 .welcome p { font-size: 1rem; }
@@ -102,21 +114,25 @@ header {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
+  transition: all 0.3s;
 }
 .card {
   background: #fff;
-  border: 2px solid #d4af37; /* gold border */
+  border: 2px solid #d4af37; 
   border-radius: 10px;
   padding: 20px;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.3s;
   cursor: pointer;
 }
-.card:hover { transform: translateY(-5px); }
+.card:hover { 
+  transform: translateY(-5px); 
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
 .card h3 { color: #1b3a1b; margin-bottom: 10px; }
 .card p { color: #333; }
 
 /* --- Responsive --- */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .side-panel { position: absolute; left: -250px; z-index: 100; height: 100%; }
   .toggle-btn { display: block; }
   main { margin-left: 0 !important; }
@@ -146,7 +162,7 @@ header {
   </div>
 
   <section id="contentArea">
-    <p>Loading home content...</p>
+    <p>Loading content...</p>
   </section>
 </main>
 
@@ -158,57 +174,68 @@ document.getElementById("userName").textContent = user.full_name;
 document.getElementById("userRole").textContent = user.role;
 
 const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
-const supabaseKey = "YOUR_SUPABASE_KEY";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Build sidebar
 const sidePanel = document.getElementById("sidePanel");
 sidePanel.innerHTML = `<h2>Menu</h2><div class="menu-item" onclick="loadHome()">Home</div>`;
 
+// Menu config
 const menuConfig = {
-  dean: ["Departments", "Courses", "Faculty"],
-  faculty: ["My Courses", "Students"],
-  student: ["My Profile", "My Grades", "My Payments"]
+  dean: ["Departments","Courses","Faculty"],
+  faculty: ["My Courses","Students"],
+  student: ["My Profile","My Grades","My Payments"]
 };
 
-if (menuConfig[user.role]) {
+if(menuConfig[user.role]){
   menuConfig[user.role].forEach(item => {
-    const fnName = item.replace(/\s/g, "");
+    const fnName = item.replace(/\s/g,'');
     sidePanel.innerHTML += `<div class="menu-item" onclick="${fnName}()">${item}</div>`;
   });
 }
 
-// Load Home - display database content dynamically
-async function loadHome() {
+// Auto-hide sidebar on desktop
+let sidebarHoverTimeout;
+sidePanel.addEventListener('mouseenter', () => { sidePanel.classList.remove('collapsed'); });
+sidePanel.addEventListener('mouseleave', () => { sidebarHoverTimeout = setTimeout(()=>{ sidePanel.classList.add('collapsed'); },500); });
+window.addEventListener('load', ()=>{ if(window.innerWidth>1024) sidePanel.classList.add('collapsed'); });
+
+// Mobile toggle
+const toggleBtn = document.getElementById("toggleBtn");
+toggleBtn.onclick = () => {
+  sidePanel.style.left = (sidePanel.style.left === "0px") ? "-250px" : "0px";
+};
+
+// Load content dynamically
+async function loadHome(){
   const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading departments...</p>";
-  
-  if(user.role === "student") {
-    // Show profile info
-    const { data: grades } = await supabase.from("grades").select("*").eq("student_id", user.id_number);
+  area.innerHTML = "<p>Loading...</p>";
+
+  if(user.role==="student"){
+    const { data: grades } = await supabase.from("grades").select("*").eq("student_id",user.id_number);
     area.innerHTML = `<div class="card"><h3>My Profile</h3>
-      Name: ${user.full_name}<br>ID: ${user.id_number}<br>Department: ${user.department_id || "N/A"}</div>`;
-    if(grades && grades.length) {
-      grades.forEach(g => {
+      Name: ${user.full_name}<br>ID: ${user.id_number}<br>Dept: ${user.department_id||'N/A'}</div>`;
+    if(grades && grades.length){
+      grades.forEach(g=>{
         const div = document.createElement("div");
         div.classList.add("card");
         div.innerHTML = `<h3>${g.course_name}</h3>
-          <p>Prelim: ${g.prelim || "-"} | Midterm: ${g.midterm || "-"} | Final: ${g.final || "-"}<br>
-          Remarks: ${g.remarks || "-"}</p>`;
+          <p>Prelim: ${g.prelim||'-'} | Midterm: ${g.midterm||'-'} | Final: ${g.final||'-'}<br>
+          Remarks: ${g.remarks||'-'}</p>`;
         area.appendChild(div);
       });
     }
-  } else if(user.role === "dean" || user.role === "faculty") {
+  } else {
     const { data: depts } = await supabase.from("departments").select("*");
     const { data: courses } = await supabase.from("courses").select("*");
     area.innerHTML = "";
-    if(depts) depts.forEach(d => {
+    if(depts) depts.forEach(d=>{
       const div = document.createElement("div");
       div.classList.add("card");
-      div.innerHTML = `<h3>Department: ${d.name}</h3><p>Term type: ${d.term_type}</p>`;
+      div.innerHTML = `<h3>Department: ${d.name}</h3><p>Term: ${d.term_type}</p>`;
       area.appendChild(div);
     });
-    if(courses) courses.forEach(c => {
+    if(courses) courses.forEach(c=>{
       const div = document.createElement("div");
       div.classList.add("card");
       div.innerHTML = `<h3>Course: ${c.title} (${c.code})</h3><p>Units: ${c.units}</p>`;
@@ -218,54 +245,47 @@ async function loadHome() {
 }
 
 // Role-based functions
-async function Departments() { await loadHome(); }
-async function Courses() { await loadHome(); }
-async function Faculty() {
+const Departments = async()=>{await loadHome();};
+const Courses = async()=>{await loadHome();};
+const Faculty = async()=>{
   const area = document.getElementById("contentArea");
   const { data: faculty } = await supabase.from("users").select("*").eq("role","faculty");
-  area.innerHTML = "";
-  faculty.forEach(f => {
-    const div = document.createElement("div");
+  area.innerHTML="";
+  faculty.forEach(f=>{
+    const div=document.createElement("div");
     div.classList.add("card");
-    div.innerHTML = `<h3>${f.full_name}</h3><p>ID: ${f.id_number} | Dept: ${f.department_id}</p>`;
+    div.innerHTML=`<h3>${f.full_name}</h3><p>ID: ${f.id_number} | Dept: ${f.department_id}</p>`;
     area.appendChild(div);
   });
-}
-async function MyCourses() {
+};
+const MyCourses = async()=>{
   const area = document.getElementById("contentArea");
   const { data: courses } = await supabase.from("courses").select("*").eq("faculty_id", user.id_number);
-  area.innerHTML = "";
-  courses.forEach(c => {
-    const div = document.createElement("div");
+  area.innerHTML="";
+  courses.forEach(c=>{
+    const div=document.createElement("div");
     div.classList.add("card");
-    div.innerHTML = `<h3>${c.title} (${c.code})</h3><p>Units: ${c.units}</p>`;
+    div.innerHTML=`<h3>${c.title} (${c.code})</h3><p>Units: ${c.units}</p>`;
     area.appendChild(div);
   });
-}
-async function Students() {
+};
+const Students = async()=>{
   const area = document.getElementById("contentArea");
   const { data: students } = await supabase.from("users").select("*").eq("role","student");
-  area.innerHTML = "";
-  students.forEach(s => {
-    const div = document.createElement("div");
+  area.innerHTML="";
+  students.forEach(s=>{
+    const div=document.createElement("div");
     div.classList.add("card");
-    div.innerHTML = `<h3>${s.full_name}</h3><p>ID: ${s.id_number} | Dept: ${s.department_id}</p>`;
+    div.innerHTML=`<h3>${s.full_name}</h3><p>ID: ${s.id_number} | Dept: ${s.department_id}</p>`;
     area.appendChild(div);
   });
-}
-async function MyProfile() { await loadHome(); }
-async function MyGrades() { await loadHome(); }
-async function MyPayments() { await loadHome(); }
+};
+const MyProfile = async()=>{await loadHome();}
+const MyGrades = async()=>{await loadHome();}
+const MyPayments = async()=>{await loadHome();}
 
 // Logout
-document.getElementById("logoutBtn").onclick = () => { localStorage.clear(); window.location.href="index.html"; };
-
-// Sidebar toggle
-const toggleBtn = document.getElementById("toggleBtn");
-toggleBtn.onclick = () => {
-  const sidebar = document.getElementById("sidePanel");
-  sidebar.style.left = (sidebar.style.left === "0px") ? "-250px" : "0px";
-};
+document.getElementById("logoutBtn").onclick=()=>{localStorage.clear(); window.location.href="index.html";};
 
 // Load home by default
 loadHome();
