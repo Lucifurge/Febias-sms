@@ -44,61 +44,87 @@
     &copy; 2025 Febias College of Bible - All Rights Reserved.
   </footer>
 
-  <script>
-    const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+<script>
+  const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Get user from localStorage
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user.id_number) {
-      window.location.href = "index.html";
-    }
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user || !user.id_number) {
+    window.location.href = "index.html";
+  }
 
-    async function loadUser() {
-      const { data, error } = await supabase
-        .from("users")
-        .select("full_name, role")
-        .eq("id_number", user.id_number)
-        .single();
+  async function loadUser() {
+    const { data, error } = await supabase
+      .from("users")
+      .select("full_name, role")
+      .eq("id_number", user.id_number)
+      .single();
 
-      if (error || !data) {
-        alert("Error loading profile. Please login again.");
-        localStorage.clear();
-        window.location.href = "index.html";
-        return;
-      }
-
-      document.getElementById("userName").textContent = data.full_name;
-      document.getElementById("userRole").textContent = data.role;
-    }
-
-    async function loadDepartments() {
-      const { data, error } = await supabase.from("departments").select("*");
-      const list = document.getElementById("departmentList");
-
-      if (error || !data) {
-        list.innerHTML = "<p>Failed to load departments.</p>";
-        return;
-      }
-
-      list.innerHTML = "";
-      data.forEach(dept => {
-        const div = document.createElement("div");
-        div.classList.add("card");
-        div.innerHTML = `<h3>${dept.name}</h3><p>Term type: <strong>${dept.term_type}</strong></p>`;
-        div.onclick = () => alert(`Opening ${dept.name} section...`);
-        list.appendChild(div);
-      });
-    }
-
-    document.getElementById("logoutBtn").onclick = () => {
+    if (error || !data) {
+      alert("Error loading profile. Please login again.");
       localStorage.clear();
       window.location.href = "index.html";
-    };
+      return;
+    }
 
-    loadUser();
-    loadDepartments();
-  </script>
+    document.getElementById("userName").textContent = data.full_name;
+    document.getElementById("userRole").textContent = data.role;
+
+    if (data.role === "Dean") {
+      showDeanOptions();
+    } else {
+      showStudentOptions();
+    }
+  }
+
+  function showDeanOptions() {
+    const list = document.getElementById("departmentList");
+    list.innerHTML = `
+      <div class="card" onclick="alert('Opening Dean Dashboard...')">
+        <h3>Dean Dashboard</h3>
+        <p>Manage departments, faculty, and reports</p>
+      </div>
+      <div class="card" onclick="alert('Opening Faculty Management...')">
+        <h3>Faculty Management</h3>
+        <p>View and assign faculty roles</p>
+      </div>
+      <div class="card" onclick="alert('Opening Academic Reports...')">
+        <h3>Academic Reports</h3>
+        <p>Generate and review performance data</p>
+      </div>
+    `;
+  }
+
+  function showStudentOptions() {
+    loadDepartments(); // fallback to department view for students
+  }
+
+  async function loadDepartments() {
+    const { data, error } = await supabase.from("departments").select("*");
+    const list = document.getElementById("departmentList");
+
+    if (error || !data) {
+      list.innerHTML = "<p>Failed to load departments.</p>";
+      return;
+    }
+
+    list.innerHTML = "";
+    data.forEach(dept => {
+      const div = document.createElement("div");
+      div.classList.add("card");
+      div.innerHTML = `<h3>${dept.name}</h3><p>Term type: <strong>${dept.term_type}</strong></p>`;
+      div.onclick = () => alert(`Opening ${dept.name} section...`);
+      list.appendChild(div);
+    });
+  }
+
+  document.getElementById("logoutBtn").onclick = () => {
+    localStorage.clear();
+    window.location.href = "index.html";
+  };
+
+  loadUser();
+</script>
 </body>
 </html>
