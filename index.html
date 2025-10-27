@@ -140,8 +140,8 @@
   </div>
 
 <script>
-  // Replace with your Supabase URL and anon key
-  const supabase = supabase.createClient(
+  // Initialize Supabase
+  const supabase = Supabase.createClient(
     "https://dlwytowtesllydqsiicv.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A"
   );
@@ -180,13 +180,11 @@
       return;
     }
 
-    // Store user info in localStorage for the home page
     localStorage.setItem("user", JSON.stringify(data));
-
-    // Redirect to home.html
     window.location.href = "home.html";
   });
 </script>
+
 
 </body>
 </html>
