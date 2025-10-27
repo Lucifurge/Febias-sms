@@ -43,39 +43,19 @@
   <footer>
     &copy; 2025 Febias College of Bible - All Rights Reserved.
   </footer>
-
 <script>
-  const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
   const user = JSON.parse(localStorage.getItem("user"));
-  if (!user || !user.id_number) {
+  if (!user || !user.id_number || !user.role) {
     window.location.href = "index.html";
   }
 
-  async function loadUser() {
-    const { data, error } = await supabase
-      .from("users")
-      .select("full_name, role")
-      .eq("id_number", user.id_number)
-      .single();
+  document.getElementById("userName").textContent = user.full_name;
+  document.getElementById("userRole").textContent = user.role;
 
-    if (error || !data) {
-      alert("Error loading profile. Please login again.");
-      localStorage.clear();
-      window.location.href = "index.html";
-      return;
-    }
-
-    document.getElementById("userName").textContent = data.full_name;
-    document.getElementById("userRole").textContent = data.role;
-
-    if (data.role === "Dean") {
-      showDeanOptions();
-    } else {
-      showStudentOptions();
-    }
+  if (user.role === "dean") {
+    showDeanOptions();
+  } else {
+    loadDepartments(); // fallback for students/faculty
   }
 
   function showDeanOptions() {
@@ -87,7 +67,7 @@
       </div>
       <div class="card" onclick="alert('Opening Faculty Management...')">
         <h3>Faculty Management</h3>
-        <p>View and assign faculty roles</p>
+        <p>Assign faculty and view roles</p>
       </div>
       <div class="card" onclick="alert('Opening Academic Reports...')">
         <h3>Academic Reports</h3>
@@ -96,11 +76,11 @@
     `;
   }
 
-  function showStudentOptions() {
-    loadDepartments(); // fallback to department view for students
-  }
-
   async function loadDepartments() {
+    const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
     const { data, error } = await supabase.from("departments").select("*");
     const list = document.getElementById("departmentList");
 
@@ -123,8 +103,6 @@
     localStorage.clear();
     window.location.href = "index.html";
   };
-
-  loadUser();
 </script>
 </body>
 </html>
