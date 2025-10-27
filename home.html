@@ -4,83 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Febias College of Bible - SMS Home</title>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background-color: #f9fdf9;
-      color: #1e3a1e;
-      margin: 0;
-      padding: 0;
-    }
-
-    header {
-      background-color: #2e7d32;
-      color: white;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.4em;
-    }
-
-    .logout-btn {
-      background-color: #f44336;
-      border: none;
-      color: white;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .logout-btn:hover {
-      background-color: #d32f2f;
-    }
-
-    main {
-      padding: 20px;
-    }
-
-    .welcome {
-      margin-bottom: 30px;
-    }
-
-    .departments {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      padding: 20px;
-      text-align: center;
-      transition: transform 0.2s;
-      cursor: pointer;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-    }
-
-    .card h3 {
-      color: #2e7d32;
-    }
-
-    footer {
-      text-align: center;
-      padding: 15px;
-      font-size: 0.9em;
-      background: #e8f5e9;
-      margin-top: 40px;
-    }
+    body { font-family: "Poppins", sans-serif; background-color: #f9fdf9; color: #1e3a1e; margin: 0; padding: 0; }
+    header { background-color: #2e7d32; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    header h1 { margin: 0; font-size: 1.4em; }
+    .logout-btn { background-color: #f44336; border: none; color: white; padding: 8px 14px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+    .logout-btn:hover { background-color: #d32f2f; }
+    main { padding: 20px; }
+    .welcome { margin-bottom: 30px; }
+    .departments { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+    .card { background: white; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 20px; text-align: center; transition: transform 0.2s; cursor: pointer; }
+    .card:hover { transform: translateY(-5px); }
+    .card h3 { color: #2e7d32; }
+    footer { text-align: center; padding: 15px; font-size: 0.9em; background: #e8f5e9; margin-top: 40px; }
   </style>
 </head>
 <body>
@@ -107,17 +44,14 @@
     &copy; 2025 Febias College of Bible - All Rights Reserved.
   </footer>
 
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  <script>
+    const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const SUPABASE_URL = "https://dlwytowtesllydqsiicv.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Get user info from localStorage
-    const userIdNumber = localStorage.getItem("id_number");
-
-    if (!userIdNumber) {
+    // Get user from localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id_number) {
       window.location.href = "index.html";
     }
 
@@ -125,7 +59,7 @@
       const { data, error } = await supabase
         .from("users")
         .select("full_name, role")
-        .eq("id_number", userIdNumber)
+        .eq("id_number", user.id_number)
         .single();
 
       if (error || !data) {
@@ -152,10 +86,7 @@
       data.forEach(dept => {
         const div = document.createElement("div");
         div.classList.add("card");
-        div.innerHTML = `
-          <h3>${dept.name}</h3>
-          <p>Term type: <strong>${dept.term_type}</strong></p>
-        `;
+        div.innerHTML = `<h3>${dept.name}</h3><p>Term type: <strong>${dept.term_type}</strong></p>`;
         div.onclick = () => alert(`Opening ${dept.name} section...`);
         list.appendChild(div);
       });
