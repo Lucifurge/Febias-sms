@@ -33,9 +33,124 @@
       <button type="submit">Login</button>
     </form>
 
+    <div class="footer">© 2025 Febias College of Bible</div><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Febias College of Bible - SMS</title>
+
+  <!-- Supabase CDN -->
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+
+  <style>
+    /* Base reset */
+    * { font-family: 'Poppins', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: linear-gradient(135deg, #e0f2f1, #f2f8f4);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 50px 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      width: 400px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+    }
+
+    .logo {
+      font-size: 22px;
+      color: #0b6623;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 25px;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 30px;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 12px 0;
+      border: 1px solid #c9d6cc;
+      border-radius: 10px;
+      outline: none;
+      transition: 0.3s;
+      font-size: 14px;
+    }
+
+    input:focus {
+      border-color: #0b6623;
+      box-shadow: 0 0 8px rgba(11,102,35,0.3);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #0b6623, #2e7d32);
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 15px;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #2e7d32, #0b6623);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .footer {
+      margin-top: 25px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    /* Optional: small animation for container */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      animation: fadeIn 0.6s ease-out;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo">Febias College of Bible</div>
+    <h2>School Management System</h2>
+
+    <form id="loginForm">
+      <input type="text" id="idNumber" placeholder="Enter your ID Number (e.g. 2025-035)" required />
+      <input type="password" id="password" placeholder="Enter your Password" required />
+      <button type="submit">Login</button>
+    </form>
+
     <div class="footer">© 2025 Febias College of Bible</div>
   </div>
-
+  
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
