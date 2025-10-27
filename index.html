@@ -139,49 +139,54 @@
     <div class="footer">© 2025 Febias College of Bible</div>
   </div>
 
-  <script>
-    // Replace with your Supabase URL and anon key
-    const supabase = supabase.createClient(
-      "https://dlwytowtesllydqsiicv.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A"
-    );
+<script>
+  // Replace with your Supabase URL and anon key
+  const supabase = supabase.createClient(
+    "https://dlwytowtesllydqsiicv.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A"
+  );
 
-    const loginForm = document.getElementById("loginForm");
-    const profileDiv = document.getElementById("profile");
-    const logoutBtn = document.getElementById("logoutBtn");
+  const loginForm = document.getElementById("loginForm");
 
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const idNumber = document.getElementById("idNumber").value.trim();
-      const password = document.getElementById("password").value.trim();
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const { data, error } = await supabase
-        .from("users")
-        .select(`id_number, full_name, role, created_at, department_id, departments(name)`)
-        .eq("id_number", idNumber)
-        .eq("password", password)
-        .maybeSingle();
+    const idNumber = document.getElementById("idNumber").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-      if (error || !data) {
-        alert("❌ Invalid ID or Password");
-        return;
-      }
+    if (!idNumber || !password) {
+      alert("⚠️ Please enter both ID Number and Password.");
+      return;
+    }
 
-      // Show profile
-      loginForm.style.display = "none";
-      profileDiv.style.display = "block";
-      document.getElementById("userName").textContent = data.full_name;
-      document.getElementById("userId").textContent = data.id_number;
-      document.getElementById("userRole").textContent = data.role;
-      document.getElementById("userDept").textContent = data.departments?.name || "N/A";
-      document.getElementById("userCreated").textContent = new Date(data.created_at).toLocaleString();
-    });
+    const { data, error } = await supabase
+      .from("users")
+      .select(`
+        id,
+        id_number,
+        full_name,
+        role,
+        created_at,
+        department_id,
+        departments(name)
+      `)
+      .eq("id_number", idNumber)
+      .eq("password", password)
+      .maybeSingle();
 
-    logoutBtn.addEventListener("click", () => {
-      profileDiv.style.display = "none";
-      loginForm.style.display = "block";
-      loginForm.reset();
-    });
-  </script>
+    if (error || !data) {
+      alert("❌ Invalid ID or Password");
+      console.error(error);
+      return;
+    }
+
+    // Store user info in localStorage for the home page
+    localStorage.setItem("user", JSON.stringify(data));
+
+    // Redirect to home.html
+    window.location.href = "home.html";
+  });
+</script>
+
 </body>
 </html>
