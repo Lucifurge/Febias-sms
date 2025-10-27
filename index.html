@@ -53,11 +53,10 @@
   </div>
 
 <script>
-  // Initialize Supabase (browser CDN version)
+  // Initialize Supabase
   const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
   const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
-
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+  const supabase = Supabase.createClient(supabaseUrl, supabaseKey); // Capital S
 
   const loginForm = document.getElementById("loginForm");
 
@@ -81,8 +80,7 @@
           full_name,
           role,
           created_at,
-          department_id,
-          departments(name)
+          department_id
         `)
         .eq("id_number", idNumber)
         .eq("password", password)
