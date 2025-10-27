@@ -9,106 +9,21 @@
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
 
   <style>
-    * {
-      font-family: 'Poppins', sans-serif;
-      box-sizing: border-box;
-    }
-
-    body {
-      background: #f2f8f4;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .container {
-      background: white;
-      padding: 40px 50px;
-      border-radius: 16px;
-      box-shadow: 0 0 25px rgba(0,0,0,0.1);
-      width: 380px;
-      text-align: center;
-      border-top: 6px solid #0b6623; /* dark green header line */
-    }
-
-    .logo {
-      font-size: 18px;
-      color: #0b6623;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      margin-bottom: 20px;
-    }
-
-    h2 {
-      color: #333;
-      margin-bottom: 25px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #c9d6cc;
-      border-radius: 8px;
-      outline: none;
-      transition: 0.3s;
-    }
-
-    input:focus {
-      border-color: #0b6623;
-      box-shadow: 0 0 4px rgba(11,102,35,0.3);
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background-color: #0b6623;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s;
-      margin-top: 10px;
-    }
-
-    button:hover {
-      background-color: #0f7a2b;
-    }
-
-    .profile {
-      display: none;
-      text-align: left;
-    }
-
-    .profile-card {
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 12px;
-      background: #f8fbf9;
-      border: 1px solid #dfeae3;
-    }
-
-    .profile-card p {
-      margin: 6px 0;
-      color: #333;
-    }
-
-    .logout-btn {
-      margin-top: 15px;
-      background-color: #e74c3c;
-    }
-
-    .logout-btn:hover {
-      background-color: #d94535;
-    }
-
-    .footer {
-      margin-top: 15px;
-      font-size: 12px;
-      color: #888;
-    }
+    * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
+    body { background: #f2f8f4; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+    .container { background: white; padding: 40px 50px; border-radius: 16px; box-shadow: 0 0 25px rgba(0,0,0,0.1); width: 380px; text-align: center; border-top: 6px solid #0b6623; }
+    .logo { font-size: 18px; color: #0b6623; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 20px; }
+    h2 { color: #333; margin-bottom: 25px; }
+    input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #c9d6cc; border-radius: 8px; outline: none; transition: 0.3s; }
+    input:focus { border-color: #0b6623; box-shadow: 0 0 4px rgba(11,102,35,0.3); }
+    button { width: 100%; padding: 12px; border: none; border-radius: 8px; background-color: #0b6623; color: white; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+    button:hover { background-color: #0f7a2b; }
+    .profile { display: none; text-align: left; }
+    .profile-card { margin-top: 20px; padding: 15px; border-radius: 12px; background: #f8fbf9; border: 1px solid #dfeae3; }
+    .profile-card p { margin: 6px 0; color: #333; }
+    .logout-btn { margin-top: 15px; background-color: #e74c3c; }
+    .logout-btn:hover { background-color: #d94535; }
+    .footer { margin-top: 15px; font-size: 12px; color: #888; }
   </style>
 </head>
 
@@ -117,14 +32,12 @@
     <div class="logo">Febias College of Bible</div>
     <h2>School Management System</h2>
 
-    <!-- Login Form -->
     <form id="loginForm">
       <input type="text" id="idNumber" placeholder="Enter your ID Number (e.g. 2025-035)" required />
       <input type="password" id="password" placeholder="Enter your Password" required />
       <button type="submit">Login</button>
     </form>
 
-    <!-- Profile Display -->
     <div class="profile" id="profile">
       <h3 style="color:#0b6623;">Welcome, <span id="userName"></span></h3>
       <div class="profile-card">
@@ -140,13 +53,12 @@
   </div>
 
 <script>
-  // Initialize Supabase for browser
+  // Initialize Supabase (browser CDN version)
   const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
   const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
 
-  const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // Get login form element
   const loginForm = document.getElementById("loginForm");
 
   loginForm.addEventListener("submit", async (e) => {
@@ -161,7 +73,6 @@
     }
 
     try {
-      // Fetch user from Supabase
       const { data, error } = await supabase
         .from("users")
         .select(`
@@ -184,7 +95,6 @@
         return;
       }
 
-      // Store user info and redirect
       localStorage.setItem("user", JSON.stringify(data));
       window.location.href = "home.html";
 
@@ -194,7 +104,5 @@
     }
   });
 </script>
-
-
 </body>
 </html>
