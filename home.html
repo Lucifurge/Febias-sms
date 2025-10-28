@@ -1,445 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Febias College of Bible - SMS</title>
-<script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Febias College of Bible - SMS</title>
 
-<style>
-/* --- Reset & Fonts --- */
-* { margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', sans-serif; }
-body { display:flex; height:100vh; background:#f4f7fa; overflow:hidden; }
+  <!-- ✅ Correct Supabase Client import BEFORE your script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-/* --- Sidebar --- */
-.side-panel {
-  width: 240px;
-  background: linear-gradient(180deg,#1b3a1b,#2e5a2e);
-  color:#fff;
-  display:flex;
-  flex-direction:column;
-  border-right: 4px solid #d4af37;
-  transition: all 0.3s ease;
-  position:relative;
-  box-shadow:2px 0 12px rgba(0,0,0,0.1);
-}
-.side-panel.collapsed { width: 60px; }
-.sidebar-header { display:flex; align-items:center; padding:15px 20px; gap:12px; border-bottom:2px solid #d4af37; }
-.logo { width:40px; height:40px; border-radius:50%; object-fit:cover; transition: all 0.3s ease; }
-.side-panel.collapsed .logo { width:35px; height:35px; }
-.side-panel h2 { font-size:1.4rem; font-weight:600; }
-.side-panel.collapsed h2 { display:none; }
-.menu-item { padding:14px 20px; cursor:pointer; border-radius:8px; margin:5px 10px; transition:0.3s; font-weight:500; }
-.menu-item:hover { background: rgba(212,175,55,0.2); }
+  <style>
+    /* --- Reset & Fonts --- */
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+    body { display:flex; height:100vh; background:#f4f7fa; overflow:hidden; }
 
-/* --- Toggle Button --- */
-.toggle-btn {
-  display:none;
-  position:fixed;
-  top:15px;
-  left:15px;
-  z-index:300;
-  font-size:1.5rem;
-  padding:6px 12px;
-  background:#d4af37;
-  color:#1b3a1b;
-  border-radius:6px;
-  cursor:pointer;
-}
+    /* --- Sidebar --- */
+    .side-panel {
+      width:240px; background:linear-gradient(180deg,#1b3a1b,#2e5a2e);
+      color:#fff; display:flex; flex-direction:column;
+      border-right:4px solid #d4af37; transition:all 0.3s ease;
+      position:relative; box-shadow:2px 0 12px rgba(0,0,0,0.1);
+    }
+    .side-panel.collapsed { width:60px; }
+    .sidebar-header { display:flex; align-items:center; padding:15px 20px; gap:12px; border-bottom:2px solid #d4af37; }
+    .logo { width:40px; height:40px; border-radius:50%; object-fit:cover; transition:all 0.3s ease; }
+    .side-panel.collapsed .logo { width:35px; height:35px; }
+    .side-panel h2 { font-size:1.4rem; font-weight:600; white-space:nowrap; overflow:hidden; }
+    .side-panel.collapsed h2 { display:none; }
+    .menu-item { padding:14px 20px; cursor:pointer; border-radius:8px; margin:5px 10px; transition:0.3s; font-weight:500; display:flex; align-items:center; gap:10px; }
+    .menu-item:hover { background:rgba(212,175,55,0.2); }
 
-/* --- Main Content --- */
-main { flex:1; display:flex; flex-direction:column; overflow-y:auto; transition:margin-left 0.3s ease; }
-header {
-  background: linear-gradient(90deg,#1b3a1b,#2e5a2e);
-  color:#fff; padding:16px 30px; display:flex; justify-content:space-between; align-items:center;
-  border-bottom:3px solid #d4af37; box-shadow:0 3px 12px rgba(0,0,0,0.12);
-}
-header h1 { font-size:1.5rem; font-weight:700; }
-.logout-btn { background:#d4af37; border:none; padding:8px 16px; border-radius:6px; font-weight:600; color:#1b3a1b; cursor:pointer; transition:0.3s; }
-.logout-btn:hover { background:#c49e2c; }
+    /* --- Toggle Button --- */
+    .toggle-btn {
+      display:none; position:fixed; top:15px; left:15px;
+      z-index:300; font-size:1.5rem; padding:6px 12px;
+      background:#d4af37; color:#1b3a1b;
+      border-radius:6px; cursor:pointer;
+    }
 
-/* --- Welcome Section --- */
-.welcome {
-  padding:22px 28px; margin:18px 30px; border-radius:14px;
-  background: linear-gradient(135deg,#2e7d32,#4caf50);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-  color:#fff;
-  transition: transform 0.3s;
-}
-.welcome:hover { transform: translateY(-2px); }
-.welcome h2 { font-size:1.6rem; margin-bottom:6px; }
-.welcome p { font-size:1.05rem; font-weight:500; }
+    /* --- Main Content --- */
+    main { flex:1; display:flex; flex-direction:column; overflow-y:auto; transition:margin-left 0.3s ease; }
+    header {
+      background:linear-gradient(90deg,#1b3a1b,#2e5a2e); color:#fff;
+      padding:16px 30px; display:flex; justify-content:space-between; align-items:center;
+      border-bottom:3px solid #d4af37; box-shadow:0 3px 12px rgba(0,0,0,0.12);
+    }
+    header h1 { font-size:1.5rem; font-weight:700; }
+    .logout-btn {
+      background:#d4af37; border:none; padding:8px 16px; border-radius:6px;
+      font-weight:600; color:#1b3a1b; cursor:pointer; transition:0.3s;
+    }
+    .logout-btn:hover { background:#c49e2c; }
 
-/* --- Cards --- */
-#contentArea {
-  padding:22px 30px;
-  display:grid;
-  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
-  gap:22px;<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Febias College of Bible - SMS</title>
-<script src="https://unpkg.com/@supabase/supabase-js"></script>
+    /* --- Welcome Section --- */
+    .welcome {
+      padding:22px 28px; margin:18px 30px; border-radius:14px;
+      background:linear-gradient(135deg,#2e7d32,#4caf50);
+      box-shadow:0 6px 20px rgba(0,0,0,0.12); color:#fff; transition:transform 0.3s;
+    }
+    .welcome:hover { transform:translateY(-2px); }
+    .welcome h2 { font-size:1.6rem; margin-bottom:6px; }
+    .welcome p { font-size:1.05rem; font-weight:500; }
 
-<style>
-/* --- Reset & Fonts --- */
-* { margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', sans-serif; }
-body { display:flex; height:100vh; background:#f4f7fa; overflow:hidden; }
+    /* --- Cards --- */
+    #contentArea {
+      padding:22px 30px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:22px;
+    }
+    .card {
+      background:#fff; border-radius:14px; padding:20px;
+      cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,0.08);
+      border-left:6px solid #4caf50; transition:transform 0.25s, box-shadow 0.25s;
+    }
+    .card:hover { transform:translateY(-6px); box-shadow:0 12px 28px rgba(0,0,0,0.16); }
+    .card h3 { font-size:1.25rem; margin-bottom:8px; color:#1b3a1b; }
+    .card p { font-size:0.95rem; color:#555; margin-bottom:6px; }
+    .badge {
+      display:inline-block; padding:3px 10px; border-radius:12px;
+      font-size:0.75rem; font-weight:600; background:#d4af37; color:#1b3a1b; margin-right:5px;
+    }
 
-/* --- Sidebar --- */
-.side-panel {
-  width: 240px;
-  background: linear-gradient(180deg,#1b3a1b,#2e5a2e);
-  color:#fff;
-  display:flex;
-  flex-direction:column;
-  border-right: 4px solid #d4af37;
-  transition: all 0.3s ease;
-  position:relative;
-  box-shadow:2px 0 12px rgba(0,0,0,0.1);
-}
-.side-panel.collapsed { width: 60px; }
-.sidebar-header { display:flex; align-items:center; padding:15px 20px; gap:12px; border-bottom:2px solid #d4af37; }
-.logo { width:40px; height:40px; border-radius:50%; object-fit:cover; transition: all 0.3s ease; }
-.side-panel.collapsed .logo { width:35px; height:35px; }
-.side-panel h2 { font-size:1.4rem; font-weight:600; }
-.side-panel.collapsed h2 { display:none; }
-.menu-item { padding:14px 20px; cursor:pointer; border-radius:8px; margin:5px 10px; transition:0.3s; font-weight:500; }
-.menu-item:hover { background: rgba(212,175,55,0.2); }
-
-/* --- Toggle Button --- */
-.toggle-btn {
-  display:none;
-  position:fixed;
-  top:15px;
-  left:15px;
-  z-index:300;
-  font-size:1.5rem;
-  padding:6px 12px;
-  background:#d4af37;
-  color:#1b3a1b;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-/* --- Main Content --- */
-main { flex:1; display:flex; flex-direction:column; overflow-y:auto; transition:margin-left 0.3s ease; }
-header {
-  background: linear-gradient(90deg,#1b3a1b,#2e5a2e);
-  color:#fff; padding:16px 30px; display:flex; justify-content:space-between; align-items:center;
-  border-bottom:3px solid #d4af37; box-shadow:0 3px 12px rgba(0,0,0,0.12);
-}
-header h1 { font-size:1.5rem; font-weight:700; }
-.logout-btn { background:#d4af37; border:none; padding:8px 16px; border-radius:6px; font-weight:600; color:#1b3a1b; cursor:pointer; transition:0.3s; }
-.logout-btn:hover { background:#c49e2c; }
-
-/* --- Welcome Section --- */
-.welcome {
-  padding:22px 28px; margin:18px 30px; border-radius:14px;
-  background: linear-gradient(135deg,#2e7d32,#4caf50);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-  color:#fff;
-  transition: transform 0.3s;
-}
-.welcome:hover { transform: translateY(-2px); }
-.welcome h2 { font-size:1.6rem; margin-bottom:6px; }
-.welcome p { font-size:1.05rem; font-weight:500; }
-
-/* --- Cards --- */
-#contentArea {
-  padding:22px 30px;
-  display:grid;
-  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
-  gap:22px;
-}
-.card {
-  background:#fff;
-  border-radius:14px;
-  padding:20px;
-  cursor:pointer;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-  border-left:6px solid #4caf50;
-  transition: transform 0.25s, box-shadow 0.25s;
-}
-.card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.16); }
-.card h3 { font-size:1.25rem; margin-bottom:8px; color:#1b3a1b; }
-.card p { font-size:0.95rem; color:#555; margin-bottom:6px; }
-.badge {
-  display:inline-block; padding:3px 10px; border-radius:12px;
-  font-size:0.75rem; font-weight:600; background:#d4af37; color:#1b3a1b; margin-right:5px;
-}
-
-/* --- Responsive --- */
-@media(max-width:1024px){
-  .toggle-btn { display:block; }
-  .side-panel { position:fixed; top:0; left:-250px; height:100%; z-index:200; transition:left 0.3s ease; }
-  .side-panel.open { left:0; }
-  main.dimmed::after {
-    content:''; position:fixed; top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.3); z-index:150;
-  }
-  #contentArea { grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); padding:15px; }
-}
-</style>
+    /* --- Responsive --- */
+    @media(max-width:1024px){
+      .toggle-btn { display:block; }
+      .side-panel { position:fixed; top:0; left:-250px; height:100%; z-index:200; transition:left 0.3s ease; }
+      .side-panel.open { left:0; }
+      main.dimmed::after {
+        content:''; position:fixed; top:0; left:0; width:100%; height:100%;
+        background:rgba(0,0,0,0.3); z-index:150;
+      }
+      #contentArea { grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); padding:15px; }
+    }
+  </style>
 </head>
 
 <body>
-<!-- Sidebar -->
-<div class="side-panel" id="sidePanel">
-  <div class="sidebar-header">
-    <img src="fcb.png" alt="FCB Logo" class="logo">
-    <h2>Menu</h2>
-  </div>
-</div>
-
-<!-- Toggle Button -->
-<div class="toggle-btn" id="toggleBtn">&#9776;</div>
-
-<!-- Main Content -->
-<main id="mainContent">
-  <header>
-    <h1>Febias College of Bible - SMS</h1>
-    <button class="logout-btn" id="logoutBtn">Logout</button>
-  </header>
-
-  <div class="welcome">
-    <h2>Welcome, <span id="userName">Loading...</span></h2>
-    <p>Role: <span id="userRole">Loading...</span></p>
-  </div>
-
-  <section id="contentArea">
-    <p>Loading content...</p>
-  </section>
-</main>
-
-<script>
-// --- Retrieve user from localStorage ---
-const user = JSON.parse(localStorage.getItem("user"));
-if (!user || !user.id_number || !user.role) window.location.href = "index.html";
-
-// Update Welcome Section
-document.getElementById("userName").textContent = user.full_name;
-document.getElementById("userRole").textContent = user.role;
-
-// --- Supabase Setup ---
-const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-// --- Sidebar Setup ---
-const sidePanel = document.getElementById("sidePanel");
-sidePanel.innerHTML += `<div class="menu-item" onclick="loadHome()">Home</div>`;
-
-// Menu configuration by role
-const menuConfig = {
-  dean: ["Departments", "Faculty"],
-  faculty: ["My Courses", "Students"],
-  student: ["My Profile", "My Grades", "My Payments", "My Courses"]
-};
-
-// Dynamically create sidebar menu
-if (menuConfig[user.role]) {
-  menuConfig[user.role].forEach(item => {
-    const fnName = item.replace(/\s/g,'');
-    sidePanel.innerHTML += `<div class="menu-item" onclick="${fnName}()">${item}</div>`;
-  });
-}
-
-// --- Sidebar Hover for Desktop ---
-let sidebarHoverTimeout;
-sidePanel.addEventListener('mouseenter', () => sidePanel.classList.remove('collapsed'));
-sidePanel.addEventListener('mouseleave', () => { 
-  sidebarHoverTimeout = setTimeout(() => sidePanel.classList.add('collapsed'), 500); 
-});
-window.addEventListener('load', () => { if(window.innerWidth > 1024) sidePanel.classList.add('collapsed'); });
-
-// --- Mobile Toggle ---
-const toggleBtn = document.getElementById("toggleBtn");
-toggleBtn.onclick = () => {
-  const isOpen = sidePanel.classList.contains("open");
-  sidePanel.classList.toggle("open", !isOpen);
-  if(window.innerWidth <= 1024){
-    document.getElementById("mainContent").classList.toggle("dimmed", !isOpen);
-  }
-};
-
-// Close sidebar when clicking outside on mobile
-document.getElementById("mainContent").addEventListener("click", () => {
-  if(window.innerWidth <= 1024 && sidePanel.classList.contains("open")){
-    sidePanel.classList.remove("open");
-    document.getElementById("mainContent").classList.remove("dimmed");
-  }
-});
-
-// Ensure sidebar resets on resize
-window.addEventListener('resize', () => {
-  if(window.innerWidth > 1024){
-    sidePanel.classList.remove("open");
-    document.getElementById("mainContent").classList.remove("dimmed");
-  }
-});
-
-// --- Logout ---
-document.getElementById("logoutBtn").onclick = () => {
-  localStorage.clear();
-  window.location.href = "index.html";
-};
-
-// --- Load Home ---
-async function loadHome() {
-  const area = document.getElementById("contentArea");
-  area.innerHTML = `
-    <div class="card">
-      <h3>Welcome, ${user.full_name}!</h3>
-      <p>Your role: <span class="badge">${user.role}</span></p>
-      <p>Select a menu option from the sidebar to view content.</p>
+  <!-- Sidebar -->
+  <div class="side-panel" id="sidePanel">
+    <div class="sidebar-header">
+      <img src="fcb.png" alt="FCB Logo" class="logo" />
+      <h2>Menu</h2>
     </div>
-  `;
-}
+  </div>
 
-// --- Departments ---
-async function Departments() {
-  const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading Departments...</p>";
+  <!-- Toggle Button -->
+  <div class="toggle-btn" id="toggleBtn">&#9776;</div>
 
-  const { data: depts, error } = await supabase.from("departments").select("*").order("name");
-  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
+  <!-- Main -->
+  <main id="mainContent">
+    <header>
+      <h1>Febias College of Bible - SMS</h1>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </header>
 
-  area.innerHTML = "";
-  if(!depts || depts.length === 0){ area.innerHTML = "<p>No departments found.</p>"; return; }
+    <div class="welcome">
+      <h2>Welcome, <span id="userName">Loading...</span></h2>
+      <p>Role: <span id="userRole">Loading...</span></p>
+    </div>
 
-  for(const d of depts){
-    const deptDiv = document.createElement("div");
-    deptDiv.classList.add("card");
-    deptDiv.innerHTML = `<h3>${d.name}</h3><p><span class="badge">${d.term_type}</span></p>`;
+    <section id="contentArea">
+      <p>Loading content...</p>
+    </section>
+  </main>
 
-    const courseList = document.createElement("div");
-    courseList.style.display = "none";
-    courseList.style.marginTop = "10px";
+  <script>
+    // ✅ Supabase initialization AFTER import
+    const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
+    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    const { data: courses, error: courseErr } = await supabase.from("courses").select("*").eq("department_id", d.id).order("code");
-    if(courseErr){ console.error(courseErr); }
+    // ✅ Get logged user
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id_number || !user.role) window.location.href = "index.html";
 
-    if(courses && courses.length){
-      courses.forEach(c=>{
-        const cDiv = document.createElement("div");
-        cDiv.style.padding = "5px 10px";
-        cDiv.style.borderTop = "1px solid #d4af37";
-        cDiv.innerHTML = `${c.title} (${c.code}) - ${c.units} units`;
-        courseList.appendChild(cDiv);
+    document.getElementById("userName").textContent = user.full_name;
+    document.getElementById("userRole").textContent = user.role;
+
+    // ✅ Sidebar setup
+    const sidePanel = document.getElementById("sidePanel");
+    sidePanel.innerHTML += `<div class="menu-item" onclick="loadHome()">🏠 Home</div>`;
+
+    const menuConfig = {
+      dean: ["🏫 Departments", "👨‍🏫 Faculty"],
+      faculty: ["📘 My Courses", "🎓 Students"],
+      student: ["🧍‍♂️ My Profile", "📊 My Grades", "💳 My Payments", "📚 My Courses"]
+    };
+
+    if (menuConfig[user.role]) {
+      menuConfig[user.role].forEach(item => {
+        const cleanFn = item.replace(/[^\w]/g, '');
+        sidePanel.innerHTML += `<div class="menu-item" onclick="${cleanFn}()">${item}</div>`;
       });
-    } else {
-      const emptyDiv = document.createElement("div");
-      emptyDiv.style.padding = "5px 10px";
-      emptyDiv.innerHTML = "No courses available";
-      courseList.appendChild(emptyDiv);
     }
 
-    deptDiv.addEventListener("click", () => {
-      courseList.style.display = courseList.style.display === "none" ? "block" : "none";
-    });
+    // ✅ Sidebar hover behavior
+    sidePanel.addEventListener("mouseenter", () => sidePanel.classList.remove("collapsed"));
+    sidePanel.addEventListener("mouseleave", () => sidePanel.classList.add("collapsed"));
+    window.addEventListener("load", () => { if (window.innerWidth > 1024) sidePanel.classList.add("collapsed"); });
 
-    deptDiv.appendChild(courseList);
-    area.appendChild(deptDiv);
-  }
-}
+    // ✅ Mobile toggle
+    document.getElementById("toggleBtn").onclick = () => {
+      const open = sidePanel.classList.contains("open");
+      sidePanel.classList.toggle("open", !open);
+      if (window.innerWidth <= 1024) document.getElementById("mainContent").classList.toggle("dimmed", !open);
+    };
 
-// --- Faculty ---
-async function Faculty() {
-  const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading Faculty...</p>";
+    // ✅ Logout
+    document.getElementById("logoutBtn").onclick = () => {
+      localStorage.clear();
+      window.location.href = "index.html";
+    };
 
-  const { data: faculty, error } = await supabase.from("users").select("*").eq("role","faculty");
-  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
+    // ✅ Load default home
+    async function loadHome() {
+      const area = document.getElementById("contentArea");
+      area.innerHTML = `
+        <div class="card">
+          <h3>Welcome, ${user.full_name}!</h3>
+          <p>Your role: <span class="badge">${user.role}</span></p>
+          <p>Select a menu option from the sidebar to view content.</p>
+        </div>`;
+    }
 
-  area.innerHTML = "";
-  faculty.forEach(f => {
-    const div = document.createElement("div");
-    div.classList.add("card");
-    div.innerHTML = `<h3>${f.full_name}</h3><p>ID: ${f.id_number} | Dept: ${f.department_id || "N/A"}</p>`;
-    area.appendChild(div);
-  });
-}
+    // ✅ Example DB function
+    async function Departments() {
+      const area = document.getElementById("contentArea");
+      area.innerHTML = "<p>Loading departments...</p>";
+      const { data, error } = await client.from("departments").select("*");
+      if (error) { area.innerHTML = `<p>Error: ${error.message}</p>`; return; }
+      if (!data.length) { area.innerHTML = "<p>No departments found.</p>"; return; }
+      area.innerHTML = data.map(d => `<div class="card"><h3>${d.name}</h3><p>${d.term_type}</p></div>`).join("");
+    }
 
-// --- My Profile ---
-async function MyProfile() {
-  const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading profile...</p>";
-
-  const { data: profile, error } = await supabase.from("users").select("*").eq("id_number", user.id_number).single();
-  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
-
-  area.innerHTML = `
-    <div class="card">
-      <h3>${profile.full_name}</h3>
-      <p>ID: ${profile.id_number}</p>
-      <p>Role: <span class="badge">${profile.role}</span></p>
-      <p>Department: ${profile.department_id || "N/A"}</p>
-      <p>Email: ${profile.email || "N/A"}</p>
-    </div>
-  `;
-}
-
-// --- My Grades ---
-async function MyGrades() {
-  const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading grades...</p>";
-
-  const { data: grades, error } = await supabase.from("grades").select("*").eq("student_id", user.id_number).order("term");
-  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
-  if(!grades || grades.length === 0){ area.innerHTML = "<p>No grades available.</p>"; return; }
-
-  area.innerHTML = "";
-  grades.forEach(g => {
-    const div = document.createElement("div");
-    div.classList.add("card");
-    div.innerHTML = `<h3>${g.subject}</h3><p><span class="badge">Term: ${g.term}</span> <span class="badge">Grade: ${g.grade}</span></p>`;
-    area.appendChild(div);
-  });
-}
-
-// --- My Payments ---
-async function MyPayments() {
-  const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading payments...</p>";
-
-  const { data: payments, error } = await supabase.from("payments").select("*").eq("student_id", user.id_number).order("date", { ascending:false });
-  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
-  if(!payments || payments.length === 0){ area.innerHTML = "<p>No payments found.</p>"; return; }
-
-  area.innerHTML = "";
-  payments.forEach(p => {
-    const div = document.createElement("div");
-    div.classList.add("card");
-    div.innerHTML = `<h3>Payment: ${p.amount}</h3><p><span class="badge">${p.status}</span> <span class="badge">${new Date(p.date).toLocaleDateString()}</span></p>`;
-    area.appendChild(div);
-  });
-}
-
-// --- My Courses ---
-async function MyCourses() {
-  const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading courses...</p>";
-
-  const { data: courses, error } = await supabase.from("courses").select("*").eq("student_id", user.id_number).order("code");
-  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
-  if(!courses || courses.length === 0){ area.innerHTML = "<p>No courses found.</p>"; return; }
-
-  area.innerHTML = "";
-  courses.forEach(c => {
-    const div = document.createElement("div");
-    div.classList.add("card");
-    div.innerHTML = `<h3>${c.title} (${c.code})</h3><p><span class="badge">Units: ${c.units}</span></p>`;
-    area.appendChild(div);
-  });
-}
-
-// --- Load home by default ---
-loadHome();
-</script>
-
-
+    loadHome();
+  </script>
 </body>
 </html>
