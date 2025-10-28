@@ -235,7 +235,7 @@ sidePanel.innerHTML += `<div class="menu-item" onclick="loadHome()">Home</div>`;
 const menuConfig = {
   dean: ["Departments","Faculty"],
   faculty: ["My Courses","Students"],
-  student: ["My Profile","My Grades","My Payments"]
+  student: ["My Profile","My Grades","My Payments","My Courses"]
 };
 if(menuConfig[user.role]){
   menuConfig[user.role].forEach(item => {
@@ -284,11 +284,10 @@ async function loadHome(){
   area.innerHTML = "<p>Welcome! Select a menu option.</p>";
 }
 
-// --- Departments with dropdown courses ---
+// --- Departments ---
 async function Departments(){
   const area = document.getElementById("contentArea");
   area.innerHTML = "<p>Loading Departments...</p>";
-
   const { data: depts } = await supabase.from("departments").select("*").order("name");
   area.innerHTML = "";
   if(depts){
@@ -343,12 +342,126 @@ async function Faculty(){
   });
 }
 
-// --- Student role examples ---
-async function MyCourses(){ await loadHome(); }
-async function Students(){ await loadHome(); }
-async function MyProfile(){ await loadHome(); }
-async function MyGrades(){ await loadHome(); }
-async function MyPayments(){ await loadHome(); }
+// --- Student Functions ---
+async function MyProfile() {
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading profile...</p>";
+
+  const { data: profile, error } = await supabase.from("users")
+    .select("*")
+    .eq("id_number", user.id_number)
+    .single();
+
+  if(error){
+    area.innerHTML = `<p>Error loading profile: ${error.message}</p>`;
+    return;
+  }
+
+  area.innerHTML = `
+    <div class="card">
+      <h3>${profile.full_name}</h3>
+      <p>ID: ${profile.id_number}</p>
+      <p>Role: ${profile.role}</p>
+      <p>Department: ${profile.department_id || "N/A"}</p>
+      <p>Email: ${profile.email || "N/A"}</p>
+    </div>
+  `;
+}
+
+async function MyGrades() {
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading grades...</p>";
+
+  const { data: grades, error } = await supabase.from("grades")
+    .select("*")
+    .eq("student_id", user.id_number)
+    .order("term");
+
+  if(error){
+    area.innerHTML = `<p>Error loading grades: ${error.message}</p>`;
+    return;
+  }
+
+  if(!grades || grades.length === 0){
+    area.innerHTML = "<p>No grades available.</p>";
+    return;
+  }
+
+  area.innerHTML = "";
+  grades.forEach(g => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `
+      <h3>${g.subject}</h3>
+      <p>Grade: ${g.grade}</p>
+      <p>Term: ${g.term}</p>
+    `;
+    area.appendChild(div);
+  });
+}
+
+async function MyPayments() {
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading payments...</p>";
+
+  const { data: payments, error } = await supabase.from("payments")
+    .select("*")
+    .eq("student_id", user.id_number)
+    .order("date", { ascending: false });
+
+  if(error){
+    area.innerHTML = `<p>Error loading payments: ${error.message}</p>`;
+    return;
+  }
+
+  if(!payments || payments.length === 0){
+    area.innerHTML = "<p>No payments found.</p>";
+    return;
+  }
+
+  area.innerHTML = "";
+  payments.forEach(p => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `
+      <h3>Payment: ${p.amount}</h3>
+      <p>Status: ${p.status}</p>
+      <p>Date: ${new Date(p.date).toLocaleDateString()}</p>
+    `;
+    area.appendChild(div);
+  });
+}
+
+async function MyCourses() {
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading courses...</p>";
+
+  const { data: courses, error } = await supabase.from("courses")
+    .select("*")
+    .eq("student_id", user.id_number)
+    .order("code");
+
+  if(error){
+    area.innerHTML = `<p>Error loading courses: ${error.message}</p>`;
+    return;
+  }
+
+  if(!courses || courses.length === 0){
+    area.innerHTML = "<p>No courses found.</p>";
+    return;
+  }
+
+  area.innerHTML = "";
+  courses.forEach(c => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `
+      <h3>${c.title} (${c.code})</h3>
+      <p>Units: ${c.units}</p>
+    `;
+    area.appendChild(div);
+  });
+}
 
 // Logout
 document.getElementById("logoutBtn").onclick=()=>{localStorage.clear(); window.location.href="index.html";};
