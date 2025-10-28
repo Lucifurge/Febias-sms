@@ -216,215 +216,9 @@ header h1 { font-size:1.5rem; font-weight:700; }
 
 
 <script>
-const user = JSON.parse(localStorage.getItem("user"));
-if (!user || !user.id_number || !user.role) window.location.href = "index.html";
-
-document.getElementById("userName").textContent = user.full_name;
-document.getElementById("userRole").textContent = user.role;
-
-const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-const sidePanel = document.getElementById("sidePanel");
-sidePanel.innerHTML += `<div class="menu-item" onclick="loadHome()">Home</div>`;
-
-// Menu config
-const menuConfig = {
-  dean: ["Departments","Faculty"],
-  faculty: ["My Courses","Students"],
-  student: ["My Profile","My Grades","My Payments","My Courses"]
-};
-if(menuConfig[user.role]){
-  menuConfig[user.role].forEach(item => {
-    const fnName = item.replace(/\s/g,'');
-    sidePanel.innerHTML += `<div class="menu-item" onclick="${fnName}()">${item}</div>`;
-  });
-}
-
-// Sidebar hover for desktop
-let sidebarHoverTimeout;
-sidePanel.addEventListener('mouseenter', () => sidePanel.classList.remove('collapsed'));
-sidePanel.addEventListener('mouseleave', () => { 
-  sidebarHoverTimeout = setTimeout(()=> sidePanel.classList.add('collapsed'), 500); 
-});
-window.addEventListener('load', ()=>{ if(window.innerWidth>1024) sidePanel.classList.add('collapsed'); });
-
-// Mobile toggle
-const toggleBtn = document.getElementById("toggleBtn");
-toggleBtn.onclick = () => {
-  const isOpen = sidePanel.classList.contains("open");
-  sidePanel.classList.toggle("open", !isOpen);
-  if(window.innerWidth <= 1024){
-    document.getElementById("mainContent").classList.toggle("dimmed", !isOpen);
-  }
-};
-
-// Close sidebar when clicking outside on mobile
-document.getElementById("mainContent").addEventListener("click", ()=>{
-  if(window.innerWidth <= 1024 && sidePanel.classList.contains("open")){
-    sidePanel.classList.remove("open");
-    document.getElementById("mainContent").classList.remove("dimmed");
-  }
-});
-
-// Ensure sidebar resets on resize
-window.addEventListener('resize', ()=>{
-  if(window.innerWidth > 1024){
-    sidePanel.classList.remove("open");
-    document.getElementById("mainContent").classList.remove("dimmed");
-  }
-});
-
-// Load Home
-async function loadHome(){
-  const area = document.getElementById("contentArea");
-  area.innerHTML = `
-    <div class="card">
-      <h3>Welcome, ${user.full_name}!</h3>
-      <p>Your role: <span class="badge">${user.role}</span></p>
-      <p>Select a menu option from the sidebar to view content.</p>
-    </div>
-  `;
-}
-
-// --- Departments ---
-async function Departments(){
-  const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading Departments...</p>";
-  const { data: depts } = await supabase.from("departments").select("*").order("name");
-  area.innerHTML = "";
-  if(depts){
-    for(const d of depts){
-      const deptDiv = document.createElement("div");
-      deptDiv.classList.add("card");
-      deptDiv.innerHTML = `<h3>${d.name}</h3><p><span class="badge">${d.term_type}</span></p>`;
-      const courseList = document.createElement("div");
-      courseList.style.display = "none";
-      courseList.style.marginTop = "10px";
-
-      const { data: courses } = await supabase.from("courses")
-        .select("*")
-        .eq("department_id", d.id)
-        .order("code");
-
-      if(courses && courses.length){
-        courses.forEach(c=>{
-          const cDiv = document.createElement("div");
-          cDiv.style.padding = "5px 10px";
-          cDiv.style.borderTop = "1px solid #d4af37";
-          cDiv.innerHTML = `${c.title} (${c.code}) - ${c.units} units`;
-          courseList.appendChild(cDiv);
-        });
-      } else {
-        const emptyDiv = document.createElement("div");
-        emptyDiv.style.padding = "5px 10px";
-        emptyDiv.innerHTML = "No courses available";
-        courseList.appendChild(emptyDiv);
-      }
-
-      deptDiv.addEventListener("click", ()=> {
-        courseList.style.display = courseList.style.display === "none" ? "block" : "none";
-      });
-
-      deptDiv.appendChild(courseList);
-      area.appendChild(deptDiv);
-    }
-  }
-}
-
-// --- Faculty ---
-async function Faculty(){
-  const area = document.getElementById("contentArea");
-  const { data: faculty } = await supabase.from("users").select("*").eq("role","faculty");
-  area.innerHTML="";
-  faculty.forEach(f=>{
-    const div=document.createElement("div");
-    div.classList.add("card");
-    div.innerHTML=`<h3>${f.full_name}</h3><p>ID: ${f.id_number} | Dept: ${f.department_id}</p>`;
-    area.appendChild(div);
-  });
-}
-
-// --- Student Functions ---
-async function MyProfile() {
-  const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading profile...</p>";
-
-  const { data: profile, error } = await supabase.from("users")
-    .select("*")
-    .eq("id_number", user.id_number)
-    .single();
-
-  if(error){
-    area.innerHTML = `<p>Error loading profile: ${error.message}</p>`;
-    return;
-  }
-
-  area.innerHTML = `
-    <div class="card">
-      <h3>${profile.full_name}</h3>
-      <p>ID: ${profile.id_number}</p>
-      <p>Role: <span class="badge">${profile.role}</span></p>
-      <p>Department: ${profile.department_id || "N/A"}</p>
-      <p>Email: ${profile.email || "N/A"}</p>
-    </div>
-  `;
-}
-
-// --- Modernized Grades ---
-async function MyGrades() {
-  const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading grades...</p>";
-
-  const { data: grades, error } = await supabase.from("grades")
-    .select("*")
-    .eq("student_id", user.id_number)
-    .order("term");
-
-  if(error){
-    area.innerHTML = `<p>Error loading grades: ${error.message}</p>`;
-    return;
-  }
-
-  if(!grades || grades.length === 0){
-    area.innerHTML = "<p>No grades available.</p>";
-    return;
-  }
-
-  area.innerHTML = "";
-  grades.forEach(g => {
-    const div = document.createElement("div");
-    div.classList.add("card");
-    div.innerHTML = `
-      <h3>${g.subject}</h3>
-      <p><span class="badge">Term: ${g.term}</span> <span class="badge">Grade: ${g.grade}</span></p>
-    `;
-    area.appendChild(div);
-  });
-}
-
-// --- Modernized Payments ---
-async function MyPayments() {
-  const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Loading payments...</p>";
-
-  const { data: payments, error } = await supabase.from("payments")
-    .select("*")
-    .eq("student_id", user.id_number)
-    .order("date", { ascending: false });
-
-  if(error){
-    area.innerHTML = `<p>Error loading payments: ${error.message}</p>`;
-    return;
-  }
-
-  if(!payments || payments.length === 0){<script>
 // --- Retrieve user from localStorage ---
 const user = JSON.parse(localStorage.getItem("user"));
-if (!user || !user.id_number || !user.role) {
-    window.location.href = "index.html";
-}
+if (!user || !user.id_number || !user.role) window.location.href = "index.html";
 
 // Update Welcome Section
 document.getElementById("userName").textContent = user.full_name;
@@ -441,220 +235,212 @@ sidePanel.innerHTML += `<div class="menu-item" onclick="loadHome()">Home</div>`;
 
 // Menu configuration by role
 const menuConfig = {
-    dean: ["Departments", "Faculty"],
-    faculty: ["My Courses", "Students"],
-    student: ["My Profile", "My Grades", "My Payments", "My Courses"]
+  dean: ["Departments", "Faculty"],
+  faculty: ["My Courses", "Students"],
+  student: ["My Profile", "My Grades", "My Payments", "My Courses"]
 };
 
 // Dynamically create sidebar menu
 if (menuConfig[user.role]) {
-    menuConfig[user.role].forEach(item => {
-        const fnName = item.replace(/\s/g,'');
-        sidePanel.innerHTML += `<div class="menu-item" onclick="${fnName}()">${item}</div>`;
-    });
+  menuConfig[user.role].forEach(item => {
+    const fnName = item.replace(/\s/g,'');
+    sidePanel.innerHTML += `<div class="menu-item" onclick="${fnName}()">${item}</div>`;
+  });
 }
 
 // --- Sidebar Hover for Desktop ---
 let sidebarHoverTimeout;
 sidePanel.addEventListener('mouseenter', () => sidePanel.classList.remove('collapsed'));
 sidePanel.addEventListener('mouseleave', () => { 
-    sidebarHoverTimeout = setTimeout(() => sidePanel.classList.add('collapsed'), 500); 
+  sidebarHoverTimeout = setTimeout(() => sidePanel.classList.add('collapsed'), 500); 
 });
-window.addEventListener('load', ()=>{ if(window.innerWidth > 1024) sidePanel.classList.add('collapsed'); });
+window.addEventListener('load', () => { if(window.innerWidth > 1024) sidePanel.classList.add('collapsed'); });
 
 // --- Mobile Toggle ---
 const toggleBtn = document.getElementById("toggleBtn");
 toggleBtn.onclick = () => {
-    const isOpen = sidePanel.classList.contains("open");
-    sidePanel.classList.toggle("open", !isOpen);
-    if(window.innerWidth <= 1024){
-        document.getElementById("mainContent").classList.toggle("dimmed", !isOpen);
-    }
+  const isOpen = sidePanel.classList.contains("open");
+  sidePanel.classList.toggle("open", !isOpen);
+  if(window.innerWidth <= 1024){
+    document.getElementById("mainContent").classList.toggle("dimmed", !isOpen);
+  }
 };
 
 // Close sidebar when clicking outside on mobile
-document.getElementById("mainContent").addEventListener("click", ()=>{
-    if(window.innerWidth <= 1024 && sidePanel.classList.contains("open")){
-        sidePanel.classList.remove("open");
-        document.getElementById("mainContent").classList.remove("dimmed");
-    }
+document.getElementById("mainContent").addEventListener("click", () => {
+  if(window.innerWidth <= 1024 && sidePanel.classList.contains("open")){
+    sidePanel.classList.remove("open");
+    document.getElementById("mainContent").classList.remove("dimmed");
+  }
 });
 
 // Ensure sidebar resets on resize
-window.addEventListener('resize', ()=>{
-    if(window.innerWidth > 1024){
-        sidePanel.classList.remove("open");
-        document.getElementById("mainContent").classList.remove("dimmed");
-    }
+window.addEventListener('resize', () => {
+  if(window.innerWidth > 1024){
+    sidePanel.classList.remove("open");
+    document.getElementById("mainContent").classList.remove("dimmed");
+  }
 });
 
 // --- Logout ---
 document.getElementById("logoutBtn").onclick = () => {
-    localStorage.clear();
-    window.location.href = "index.html";
+  localStorage.clear();
+  window.location.href = "index.html";
 };
 
 // --- Load Home ---
 async function loadHome() {
-    const area = document.getElementById("contentArea");
-    area.innerHTML = `
-        <div class="card">
-            <h3>Welcome, ${user.full_name}!</h3>
-            <p>Your role: <span class="badge">${user.role}</span></p>
-            <p>Select a menu option from the sidebar to view content.</p>
-        </div>
-    `;
+  const area = document.getElementById("contentArea");
+  area.innerHTML = `
+    <div class="card">
+      <h3>Welcome, ${user.full_name}!</h3>
+      <p>Your role: <span class="badge">${user.role}</span></p>
+      <p>Select a menu option from the sidebar to view content.</p>
+    </div>
+  `;
 }
 
-// --- Departments (Dean) ---
+// --- Departments ---
 async function Departments() {
-    const area = document.getElementById("contentArea");
-    area.innerHTML = "<p>Loading Departments...</p>";
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading Departments...</p>";
 
-    const { data: depts, error } = await supabase.from("departments").select("*").order("name");
-    if(error) { area.innerHTML = `<p>Error loading departments: ${error.message}</p>`; return; }
+  const { data: depts, error } = await supabase.from("departments").select("*").order("name");
+  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
 
-    area.innerHTML = "";
-    if(depts && depts.length > 0){
-        depts.forEach(async d => {
-            const deptDiv = document.createElement("div");
-            deptDiv.classList.add("card");
-            deptDiv.innerHTML = `<h3>${d.name}</h3><p><span class="badge">${d.term_type}</span></p>`;
+  area.innerHTML = "";
+  if(!depts || depts.length === 0){ area.innerHTML = "<p>No departments found.</p>"; return; }
 
-            const courseList = document.createElement("div");
-            courseList.style.display = "none";
-            courseList.style.marginTop = "10px";
+  for(const d of depts){
+    const deptDiv = document.createElement("div");
+    deptDiv.classList.add("card");
+    deptDiv.innerHTML = `<h3>${d.name}</h3><p><span class="badge">${d.term_type}</span></p>`;
 
-            const { data: courses } = await supabase.from("courses").select("*").eq("department_id", d.id).order("code");
-            if(courses && courses.length){
-                courses.forEach(c => {
-                    const cDiv = document.createElement("div");
-                    cDiv.style.padding = "5px 10px";
-                    cDiv.style.borderTop = "1px solid #d4af37";
-                    cDiv.innerHTML = `${c.title} (${c.code}) - ${c.units} units`;
-                    courseList.appendChild(cDiv);
-                });
-            } else {
-                const emptyDiv = document.createElement("div");
-                emptyDiv.style.padding = "5px 10px";
-                emptyDiv.innerHTML = "No courses available";
-                courseList.appendChild(emptyDiv);
-            }
+    const courseList = document.createElement("div");
+    courseList.style.display = "none";
+    courseList.style.marginTop = "10px";
 
-            deptDiv.addEventListener("click", () => {
-                courseList.style.display = courseList.style.display === "none" ? "block" : "none";
-            });
+    const { data: courses, error: courseErr } = await supabase.from("courses").select("*").eq("department_id", d.id).order("code");
+    if(courseErr){ console.error(courseErr); }
 
-            deptDiv.appendChild(courseList);
-            area.appendChild(deptDiv);
-        });
+    if(courses && courses.length){
+      courses.forEach(c=>{
+        const cDiv = document.createElement("div");
+        cDiv.style.padding = "5px 10px";
+        cDiv.style.borderTop = "1px solid #d4af37";
+        cDiv.innerHTML = `${c.title} (${c.code}) - ${c.units} units`;
+        courseList.appendChild(cDiv);
+      });
     } else {
-        area.innerHTML = "<p>No departments found.</p>";
+      const emptyDiv = document.createElement("div");
+      emptyDiv.style.padding = "5px 10px";
+      emptyDiv.innerHTML = "No courses available";
+      courseList.appendChild(emptyDiv);
     }
+
+    deptDiv.addEventListener("click", () => {
+      courseList.style.display = courseList.style.display === "none" ? "block" : "none";
+    });
+
+    deptDiv.appendChild(courseList);
+    area.appendChild(deptDiv);
+  }
 }
 
-// --- Faculty (Dean) ---
+// --- Faculty ---
 async function Faculty() {
-    const area = document.getElementById("contentArea");
-    area.innerHTML = "<p>Loading Faculty...</p>";
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading Faculty...</p>";
 
-    const { data: faculty, error } = await supabase.from("users").select("*").eq("role", "faculty");
-    if(error) { area.innerHTML = `<p>Error loading faculty: ${error.message}</p>`; return; }
+  const { data: faculty, error } = await supabase.from("users").select("*").eq("role","faculty");
+  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
 
-    area.innerHTML = "";
-    faculty.forEach(f => {
-        const div = document.createElement("div");
-        div.classList.add("card");
-        div.innerHTML = `<h3>${f.full_name}</h3><p>ID: ${f.id_number} | Dept: ${f.department_id || "N/A"}</p>`;
-        area.appendChild(div);
-    });
+  area.innerHTML = "";
+  faculty.forEach(f => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `<h3>${f.full_name}</h3><p>ID: ${f.id_number} | Dept: ${f.department_id || "N/A"}</p>`;
+    area.appendChild(div);
+  });
 }
 
-// --- My Profile (Student) ---
+// --- My Profile ---
 async function MyProfile() {
-    const area = document.getElementById("contentArea");
-    area.innerHTML = "<p>Loading profile...</p>";
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading profile...</p>";
 
-    const { data: profile, error } = await supabase.from("users").select("*").eq("id_number", user.id_number).single();
-    if(error) { area.innerHTML = `<p>Error loading profile: ${error.message}</p>`; return; }
+  const { data: profile, error } = await supabase.from("users").select("*").eq("id_number", user.id_number).single();
+  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
 
-    area.innerHTML = `
-        <div class="card">
-            <h3>${profile.full_name}</h3>
-            <p>ID: ${profile.id_number}</p>
-            <p>Role: <span class="badge">${profile.role}</span></p>
-            <p>Department: ${profile.department_id || "N/A"}</p>
-            <p>Email: ${profile.email || "N/A"}</p>
-        </div>
-    `;
+  area.innerHTML = `
+    <div class="card">
+      <h3>${profile.full_name}</h3>
+      <p>ID: ${profile.id_number}</p>
+      <p>Role: <span class="badge">${profile.role}</span></p>
+      <p>Department: ${profile.department_id || "N/A"}</p>
+      <p>Email: ${profile.email || "N/A"}</p>
+    </div>
+  `;
 }
 
-// --- My Grades (Student) ---
+// --- My Grades ---
 async function MyGrades() {
-    const area = document.getElementById("contentArea");
-    area.innerHTML = "<p>Loading grades...</p>";
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading grades...</p>";
 
-    const { data: grades, error } = await supabase.from("grades").select("*").eq("student_id", user.id_number).order("term");
-    if(error) { area.innerHTML = `<p>Error loading grades: ${error.message}</p>`; return; }
-    if(!grades || grades.length === 0){ area.innerHTML = "<p>No grades available.</p>"; return; }
+  const { data: grades, error } = await supabase.from("grades").select("*").eq("student_id", user.id_number).order("term");
+  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
+  if(!grades || grades.length === 0){ area.innerHTML = "<p>No grades available.</p>"; return; }
 
-    area.innerHTML = "";
-    grades.forEach(g => {
-        const div = document.createElement("div");
-        div.classList.add("card");
-        div.innerHTML = `
-            <h3>${g.subject}</h3>
-            <p><span class="badge">Term: ${g.term}</span> <span class="badge">Grade: ${g.grade}</span></p>
-        `;
-        area.appendChild(div);
-    });
+  area.innerHTML = "";
+  grades.forEach(g => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `<h3>${g.subject}</h3><p><span class="badge">Term: ${g.term}</span> <span class="badge">Grade: ${g.grade}</span></p>`;
+    area.appendChild(div);
+  });
 }
 
-// --- My Payments (Student) ---
+// --- My Payments ---
 async function MyPayments() {
-    const area = document.getElementById("contentArea");
-    area.innerHTML = "<p>Loading payments...</p>";
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading payments...</p>";
 
-    const { data: payments, error } = await supabase.from("payments").select("*").eq("student_id", user.id_number).order("date", { ascending: false });
-    if(error) { area.innerHTML = `<p>Error loading payments: ${error.message}</p>`; return; }
-    if(!payments || payments.length === 0){ area.innerHTML = "<p>No payments found.</p>"; return; }
+  const { data: payments, error } = await supabase.from("payments").select("*").eq("student_id", user.id_number).order("date", { ascending:false });
+  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
+  if(!payments || payments.length === 0){ area.innerHTML = "<p>No payments found.</p>"; return; }
 
-    area.innerHTML = "";
-    payments.forEach(p => {
-        const div = document.createElement("div");
-        div.classList.add("card");
-        div.innerHTML = `
-            <h3>Payment: ${p.amount}</h3>
-            <p><span class="badge">${p.status}</span> <span class="badge">${new Date(p.date).toLocaleDateString()}</span></p>
-        `;
-        area.appendChild(div);
-    });
+  area.innerHTML = "";
+  payments.forEach(p => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `<h3>Payment: ${p.amount}</h3><p><span class="badge">${p.status}</span> <span class="badge">${new Date(p.date).toLocaleDateString()}</span></p>`;
+    area.appendChild(div);
+  });
 }
 
-// --- My Courses (Student) ---
+// --- My Courses ---
 async function MyCourses() {
-    const area = document.getElementById("contentArea");
-    area.innerHTML = "<p>Loading courses...</p>";
+  const area = document.getElementById("contentArea");
+  area.innerHTML = "<p>Loading courses...</p>";
 
-    const { data: courses, error } = await supabase.from("courses").select("*").eq("student_id", user.id_number).order("code");
-    if(error) { area.innerHTML = `<p>Error loading courses: ${error.message}</p>`; return; }
-    if(!courses || courses.length === 0){ area.innerHTML = "<p>No courses found.</p>"; return; }
+  const { data: courses, error } = await supabase.from("courses").select("*").eq("student_id", user.id_number).order("code");
+  if(error){ area.innerHTML = `<p>Error: ${error.message}</p>`; console.error(error); return; }
+  if(!courses || courses.length === 0){ area.innerHTML = "<p>No courses found.</p>"; return; }
 
-    area.innerHTML = "";
-    courses.forEach(c => {
-        const div = document.createElement("div");
-        div.classList.add("card");
-        div.innerHTML = `
-            <h3>${c.title} (${c.code})</h3>
-            <p><span class="badge">Units: ${c.units}</span></p>
-        `;
-        area.appendChild(div);
-    });
+  area.innerHTML = "";
+  courses.forEach(c => {
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `<h3>${c.title} (${c.code})</h3><p><span class="badge">Units: ${c.units}</span></p>`;
+    area.appendChild(div);
+  });
 }
 
 // --- Load home by default ---
 loadHome();
 </script>
+
 
 </body>
 </html>
