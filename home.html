@@ -14,7 +14,7 @@ body {
   display: flex;
   height: 100vh;
   overflow: hidden;
-  background: #f0f4f0;
+  background: #f5f7fa;
 }
 
 /* --- Sidebar --- */
@@ -27,165 +27,74 @@ body {
   border-right: 4px solid #d4af37; 
   transition: all 0.3s ease;
   position: relative;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
 }
-.side-panel.collapsed {
-  width: 60px;
-}
+.side-panel.collapsed { width: 60px; }
+.sidebar-header { display: flex; align-items: center; padding: 15px 20px; border-bottom: 2px solid #d4af37; gap: 10px; }
+.logo { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; transition: all 0.3s ease; }
+.side-panel.collapsed .logo { width: 35px; height: 35px; }
+.side-panel.collapsed h2 { display: none; }
+.side-panel h2 { font-size: 1.3rem; font-weight: 600; }
+.menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
+.menu-item:hover { background: rgba(212,175,55,0.15); }
 
-/* Sidebar header with logo */
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  border-bottom: 2px solid #d4af37;
-  gap: 10px;
-}
-.logo {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-.side-panel.collapsed .logo {
-  width: 35px;
-  height: 35px;
-}
-.side-panel.collapsed h2 {
-  display: none;
-}
-
-.side-panel h2 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.menu-item {
-  padding: 15px 20px;
-  cursor: pointer;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  transition: 0.2s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.menu-item:hover {
-  background: rgba(212,175,55,0.15); 
-}
-
-/* --- Toggle Button --- */
-.toggle-btn {
-  display: none;
-  position: absolute;
-  top: 15px;
-  left: 260px;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #1b3a1b;
-}
-
-/* --- Main Content --- */
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  transition: margin-left 0.3s ease;
-}
-header {
-  background: #1b3a1b;
-  color: #fff;
-  padding: 15px 30px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 3px solid #d4af37;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-.logout-btn {
-  background: #d4af37; 
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  color: #1b3a1b;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
-}
+/* --- Main --- */
+main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; transition: margin-left 0.3s ease; }
+header { background: #1b3a1b; color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #d4af37; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.logout-btn { background: #d4af37; border: none; padding: 8px 16px; border-radius: 6px; color: #1b3a1b; font-weight: 600; cursor: pointer; transition: 0.3s; }
 .logout-btn:hover { background: #c49e2c; }
 
-/* --- Welcome Section --- */
+/* --- Welcome --- */
 .welcome {
   padding: 20px 30px;
-  background: #2e7d32; 
-  border-left: 5px solid #d4af37;
+  background: linear-gradient(90deg,#2e7d32,#4caf50);
   color: #fff;
   margin: 15px 30px;
-  border-radius: 8px;
-  transition: all 0.3s;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 .welcome h2 { font-size: 1.5rem; margin-bottom: 5px; }
-.welcome p { font-size: 1rem; }
+.welcome p { font-size: 1rem; font-weight: 500; }
 
 /* --- Cards --- */
 #contentArea {
   padding: 20px 30px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
-  transition: all 0.3s;
 }
 .card {
   background: #fff;
-  border: 2px solid #d4af37; 
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 20px;
   transition: transform 0.2s, box-shadow 0.3s;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-left: 6px solid #4caf50;
 }
-.card:hover { 
-  transform: translateY(-5px); 
+.card:hover {
+  transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
-.card h3 { color: #1b3a1b; margin-bottom: 10px; }
-.card p { color: #333; }
+.card h3 { color: #1b3a1b; margin-bottom: 10px; font-size: 1.2rem; }
+.card p { color: #555; font-size: 0.95rem; margin-bottom: 5px; }
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #d4af37;
+  color: #1b3a1b;
+  margin-right: 5px;
+}
 
 /* --- Responsive --- */
-@media (max-width: 1024px) {
-  body { overflow-x: hidden; }
-  .side-panel {
-    position: fixed;
-    top: 0;
-    left: -250px;
-    height: 100%;
-    z-index: 200;
-    transition: left 0.3s ease;
-  }
-  .side-panel.open { left: 0; }
-  .toggle-btn {
-    display: block;
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    z-index: 300;
-    background: #d4af37;
-    padding: 5px 10px;
-    border-radius: 4px;
-    color: #1b3a1b;
-  }
-  main.dimmed::after {
-    content: '';
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.3);
-    z-index: 150;
-  }
+@media(max-width:1024px){
+  #contentArea { padding: 15px; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); }
 }
 </style>
+
 </head>
 
 <body>
@@ -281,7 +190,13 @@ window.addEventListener('resize', ()=>{
 // Load Home
 async function loadHome(){
   const area = document.getElementById("contentArea");
-  area.innerHTML = "<p>Welcome! Select a menu option.</p>";
+  area.innerHTML = `
+    <div class="card">
+      <h3>Welcome, ${user.full_name}!</h3>
+      <p>Your role: <span class="badge">${user.role}</span></p>
+      <p>Select a menu option from the sidebar to view content.</p>
+    </div>
+  `;
 }
 
 // --- Departments ---
@@ -294,7 +209,7 @@ async function Departments(){
     for(const d of depts){
       const deptDiv = document.createElement("div");
       deptDiv.classList.add("card");
-      deptDiv.innerHTML = `<h3>${d.name}</h3><p>Term Type: ${d.term_type}</p>`;
+      deptDiv.innerHTML = `<h3>${d.name}</h3><p><span class="badge">${d.term_type}</span></p>`;
       const courseList = document.createElement("div");
       courseList.style.display = "none";
       courseList.style.marginTop = "10px";
@@ -361,13 +276,14 @@ async function MyProfile() {
     <div class="card">
       <h3>${profile.full_name}</h3>
       <p>ID: ${profile.id_number}</p>
-      <p>Role: ${profile.role}</p>
+      <p>Role: <span class="badge">${profile.role}</span></p>
       <p>Department: ${profile.department_id || "N/A"}</p>
       <p>Email: ${profile.email || "N/A"}</p>
     </div>
   `;
 }
 
+// --- Modernized Grades ---
 async function MyGrades() {
   const area = document.getElementById("contentArea");
   area.innerHTML = "<p>Loading grades...</p>";
@@ -393,13 +309,13 @@ async function MyGrades() {
     div.classList.add("card");
     div.innerHTML = `
       <h3>${g.subject}</h3>
-      <p>Grade: ${g.grade}</p>
-      <p>Term: ${g.term}</p>
+      <p><span class="badge">Term: ${g.term}</span> <span class="badge">Grade: ${g.grade}</span></p>
     `;
     area.appendChild(div);
   });
 }
 
+// --- Modernized Payments ---
 async function MyPayments() {
   const area = document.getElementById("contentArea");
   area.innerHTML = "<p>Loading payments...</p>";
@@ -425,13 +341,13 @@ async function MyPayments() {
     div.classList.add("card");
     div.innerHTML = `
       <h3>Payment: ${p.amount}</h3>
-      <p>Status: ${p.status}</p>
-      <p>Date: ${new Date(p.date).toLocaleDateString()}</p>
+      <p><span class="badge">${p.status}</span> <span class="badge">${new Date(p.date).toLocaleDateString()}</span></p>
     `;
     area.appendChild(div);
   });
 }
 
+// --- Modernized Courses ---
 async function MyCourses() {
   const area = document.getElementById("contentArea");
   area.innerHTML = "<p>Loading courses...</p>";
@@ -457,7 +373,7 @@ async function MyCourses() {
     div.classList.add("card");
     div.innerHTML = `
       <h3>${c.title} (${c.code})</h3>
-      <p>Units: ${c.units}</p>
+      <p><span class="badge">Units: ${c.units}</span></p>
     `;
     area.appendChild(div);
   });
