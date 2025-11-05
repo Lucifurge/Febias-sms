@@ -4,16 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Febias College of Bible - SMS</title>
-
-  <!-- ✅ Correct Supabase Client import BEFORE your script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* --- Reset & Fonts --- */
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
     body { display:flex; height:100vh; background:#f4f7fa; overflow:hidden; }
 
-    /* --- Sidebar --- */
+    /* Sidebar */
     .side-panel {
       width:240px; background:linear-gradient(180deg,#1b3a1b,#2e5a2e);
       color:#fff; display:flex; flex-direction:column;
@@ -29,7 +26,7 @@
     .menu-item { padding:14px 20px; cursor:pointer; border-radius:8px; margin:5px 10px; transition:0.3s; font-weight:500; display:flex; align-items:center; gap:10px; }
     .menu-item:hover { background:rgba(212,175,55,0.2); }
 
-    /* --- Toggle Button --- */
+    /* Toggle Button */
     .toggle-btn {
       display:none; position:fixed; top:15px; left:15px;
       z-index:300; font-size:1.5rem; padding:6px 12px;
@@ -37,7 +34,7 @@
       border-radius:6px; cursor:pointer;
     }
 
-    /* --- Main Content --- */
+    /* Main Content */
     main { flex:1; display:flex; flex-direction:column; overflow-y:auto; transition:margin-left 0.3s ease; }
     header {
       background:linear-gradient(90deg,#1b3a1b,#2e5a2e); color:#fff;
@@ -51,7 +48,7 @@
     }
     .logout-btn:hover { background:#c49e2c; }
 
-    /* --- Welcome Section --- */
+    /* Welcome Section */
     .welcome {
       padding:22px 28px; margin:18px 30px; border-radius:14px;
       background:linear-gradient(135deg,#2e7d32,#4caf50);
@@ -61,7 +58,7 @@
     .welcome h2 { font-size:1.6rem; margin-bottom:6px; }
     .welcome p { font-size:1.05rem; font-weight:500; }
 
-    /* --- Cards --- */
+    /* Cards */
     #contentArea {
       padding:22px 30px;
       display:grid;
@@ -81,7 +78,7 @@
       font-size:0.75rem; font-weight:600; background:#d4af37; color:#1b3a1b; margin-right:5px;
     }
 
-    /* --- Responsive --- */
+    /* Responsive */
     @media(max-width:1024px){
       .toggle-btn { display:block; }
       .side-panel { position:fixed; top:0; left:-250px; height:100%; z-index:200; transition:left 0.3s ease; }
@@ -96,7 +93,6 @@
 </head>
 
 <body>
-  <!-- Sidebar -->
   <div class="side-panel" id="sidePanel">
     <div class="sidebar-header">
       <img src="fcb.png" alt="FCB Logo" class="logo" />
@@ -104,10 +100,8 @@
     </div>
   </div>
 
-  <!-- Toggle Button -->
   <div class="toggle-btn" id="toggleBtn">&#9776;</div>
 
-  <!-- Main -->
   <main id="mainContent">
     <header>
       <h1>Febias College of Bible - SMS</h1>
@@ -125,54 +119,53 @@
   </main>
 
   <script>
-    // ✅ Supabase initialization AFTER import
+    // --- Supabase Initialization ---
     const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
     const client = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    // ✅ Get logged user
+    // --- Load Logged User Info ---
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user || !user.id_number || !user.role) window.location.href = "index.html";
 
     document.getElementById("userName").textContent = user.full_name;
     document.getElementById("userRole").textContent = user.role;
 
-    // ✅ Sidebar setup
+    // --- Sidebar Setup ---
     const sidePanel = document.getElementById("sidePanel");
     sidePanel.innerHTML += `<div class="menu-item" onclick="loadHome()">🏠 Home</div>`;
 
     const menuConfig = {
-      dean: ["🏫 Departments", "👨‍🏫 Faculty"],
-      faculty: ["📘 My Courses", "🎓 Students"],
-      student: ["🧍‍♂️ My Profile", "📊 My Grades", "💳 My Payments", "📚 My Courses"]
+      dean: ["🏫 Departments"],
+      faculty: ["📘 Courses"],
+      student: ["📊 Grades", "💳 Payments"]
     };
 
     if (menuConfig[user.role]) {
       menuConfig[user.role].forEach(item => {
-        const cleanFn = item.replace(/[^\w]/g, '');
-        sidePanel.innerHTML += `<div class="menu-item" onclick="${cleanFn}()">${item}</div>`;
+        const fn = item.replace(/[^\w]/g, '');
+        sidePanel.innerHTML += `<div class="menu-item" onclick="${fn}()">${item}</div>`;
       });
     }
 
-    // ✅ Sidebar hover behavior
+    // --- Sidebar behavior ---
     sidePanel.addEventListener("mouseenter", () => sidePanel.classList.remove("collapsed"));
     sidePanel.addEventListener("mouseleave", () => sidePanel.classList.add("collapsed"));
     window.addEventListener("load", () => { if (window.innerWidth > 1024) sidePanel.classList.add("collapsed"); });
 
-    // ✅ Mobile toggle
     document.getElementById("toggleBtn").onclick = () => {
       const open = sidePanel.classList.contains("open");
       sidePanel.classList.toggle("open", !open);
       if (window.innerWidth <= 1024) document.getElementById("mainContent").classList.toggle("dimmed", !open);
     };
 
-    // ✅ Logout
+    // --- Logout ---
     document.getElementById("logoutBtn").onclick = () => {
       localStorage.clear();
       window.location.href = "index.html";
     };
 
-    // ✅ Load default home
+    // --- Home Loader ---
     async function loadHome() {
       const area = document.getElementById("contentArea");
       area.innerHTML = `
@@ -183,16 +176,28 @@
         </div>`;
     }
 
-    // ✅ Example DB function
+    // --- Load Departments (from Term1&2 database) ---
     async function Departments() {
       const area = document.getElementById("contentArea");
       area.innerHTML = "<p>Loading departments...</p>";
+
       const { data, error } = await client.from("departments").select("*");
       if (error) { area.innerHTML = `<p>Error: ${error.message}</p>`; return; }
       if (!data.length) { area.innerHTML = "<p>No departments found.</p>"; return; }
-      area.innerHTML = data.map(d => `<div class="card"><h3>${d.name}</h3><p>${d.term_type}</p></div>`).join("");
+
+      area.innerHTML = data.map(d => `
+        <div class="card">
+          <h3>${d.name}</h3>
+          <p>${d.term_type || 'N/A'}</p>
+        </div>`).join("");
     }
 
+    // --- Placeholders for future Term 3,4,5 ---
+    async function Term3() { alert("Term 3 database will be added soon."); }
+    async function Term4() { alert("Term 4 database will be added soon."); }
+    async function Term5() { alert("Term 5 database will be added soon."); }
+
+    // --- Load Home on Start ---
     loadHome();
   </script>
 </body>
