@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Dashboard | FEBIAS College of Bible</title>
+<script src="https://unpkg.com/@supabase/supabase-js"></script>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+body {
+  background: #f5f8f6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: linear-gradient(90deg, #2e7d32, #d4af37);
+  color: white;
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+
+header .term {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+nav {
+  background: #ffffff;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+nav a {
+  color: #2e7d32;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 8px 15px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+nav a:hover {
+  background: #2e7d32;
+  color: white;
+}
+
+.main {
+  padding: 40px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
+}
+
+h2 {
+  color: #2e7d32;
+  margin-bottom: 15px;
+  font-size: 20px;
+}
+
+p {
+  color: #444;
+  line-height: 1.6;
+}
+
+.footer {
+  text-align: center;
+  padding: 15px;
+  font-size: 13px;
+  color: #888;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div>
+    <h1>FEBIAS College of Bible</h1>
+    <div class="term">2025–2026 | 1st Term</div>
+  </div>
+  <div id="studentName">Loading...</div>
+</header>
+
+<nav>
+  <a href="#">Home</a>
+  <a href="#">My Profile</a>
+  <a href="#">My Fees</a>
+  <a href="#">My Grades</a>
+  <a href="#">My Schedule</a>
+  <a href="#">My Transcript</a>
+  <a href="#">My Message</a>
+  <a href="#">My Request</a>
+  <a href="#">Faculty Announcements</a>
+  <a href="#">My Attendance</a>
+  <a href="#">My Clearance</a>
+  <a href="#">Registration Form</a>
+  <a href="#">DSM External Links</a>
+</nav>
+
+<div class="main">
+  <div class="card">
+    <h2>Student Home</h2>
+    <p><strong>Success!</strong><br>Welcome, you have successfully logged in.</p>
+  </div>
+
+  <div class="card" id="studentInfo">
+    <h2>Student Information</h2>
+    <p>Loading student data...</p>
+  </div>
+</div>
+
+<div class="footer">© 2025 FEBIAS College of Bible</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user || !user.stuid) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  document.getElementById("studentName").textContent = `${user.lastname || ""}, ${user.firstname || ""}`;
+
+  // Fetch full record from tblstudent
+  const { data, error } = await supabase
+    .from("tblstudent")
+    .select("*")
+    .eq("stuid", user.stuid)
+    .maybeSingle();
+
+  if (error) {
+    console.error(error);
+    document.getElementById("studentInfo").innerHTML = "<p>⚠️ Error loading student info.</p>";
+    return;
+  }
+
+  if (!data) {
+    document.getElementById("studentInfo").innerHTML = "<p>❌ Student record not found.</p>";
+    return;
+  }
+
+  // Display data
+  document.getElementById("studentInfo").innerHTML = `
+    <p><strong>${data.lastname}, ${data.firstname} ${data.middlename || ""}</strong><br>
+    ${data.stuid}<br>
+    ${data.course || "N/A"} (${data.major || "General"})<br>
+    ${data.schoolyear || "2025-2026"} | ${data.term || "1st Term"} Year ${data.yearlevel || "1st"}<br></p>
+  `;
+});
+</script>
+</body>
+</html>
