@@ -6,21 +6,21 @@
 <title>Student Dashboard | FEBIAS College of Bible</title>
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-body { background: #f5f8f6; min-height: 100vh; display: flex; flex-direction: column; }
-header { background: linear-gradient(90deg, #2e7d32, #d4af37); color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
-header h1 { font-size: 20px; letter-spacing: 1px; }
-header .term { font-size: 14px; opacity: 0.9; }
-nav { background: #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; justify-content: space-around; padding: 10px; position: sticky; top: 0; z-index: 100; }
-nav a { color: #2e7d32; text-decoration: none; font-weight: 600; padding: 8px 15px; border-radius: 8px; transition: 0.2s; }
-nav a:hover, nav a.active { background: #2e7d32; color: white; }
-.main { padding: 40px 20px; max-width: 900px; margin: 0 auto; }
-.card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
-h2 { color: #2e7d32; margin-bottom: 15px; font-size: 20px; }
-p { color: #444; line-height: 1.6; }
-.footer { text-align: center; padding: 15px; font-size: 13px; color: #888; }
-button.logout { background: crimson; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-button.logout:hover { background: darkred; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:#f5f8f6;min-height:100vh;display:flex;flex-direction:column}
+header{background:linear-gradient(90deg,#2e7d32,#d4af37);color:white;padding:15px 40px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:20px;letter-spacing:1px}
+header .term{font-size:14px;opacity:.9}
+nav{background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.1);display:flex;flex-wrap:wrap;justify-content:space-around;padding:10px;position:sticky;top:0;z-index:100}
+nav a{color:#2e7d32;text-decoration:none;font-weight:600;padding:8px 15px;border-radius:8px;transition:.2s}
+nav a:hover,nav a.active{background:#2e7d32;color:white}
+.main{padding:40px 20px;max-width:900px;margin:0 auto}
+.card{background:white;border-radius:15px;padding:25px;box-shadow:0 5px 15px rgba(0,0,0,.1);margin-bottom:25px}
+h2{color:#2e7d32;margin-bottom:15px;font-size:20px}
+p{color:#444;line-height:1.6}
+.footer{text-align:center;padding:15px;font-size:13px;color:#888}
+button.logout{background:crimson;color:white;border:none;padding:8px 15px;border-radius:8px;cursor:pointer;transition:.2s}
+button.logout:hover{background:darkred}
 </style>
 </head>
 <body>
@@ -67,67 +67,97 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 document.addEventListener("DOMContentLoaded", async () => {
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user || !user.id_number) return (window.location.href = "index.html");
-
   document.getElementById("studentName").textContent = user.full_name;
 
-  // Navbar interaction
-  document.querySelectorAll("nav a").forEach(a => {
-    a.addEventListener("click", async e => {
+  document.querySelectorAll("nav a").forEach(a=>{
+    a.addEventListener("click",async e=>{
       e.preventDefault();
-      document.querySelectorAll("nav a").forEach(x => x.classList.remove("active"));
+      document.querySelectorAll("nav a").forEach(x=>x.classList.remove("active"));
       a.classList.add("active");
-      const page = a.getAttribute("data-page");
-      await loadPage(page, user);
+      await loadPage(a.dataset.page,user);
     });
   });
 });
 
-async function loadPage(page, user) {
-  const main = document.getElementById("contentArea");
-  main.innerHTML = `<div class="card"><h2>Loading...</h2></div>`;
+async function loadPage(page,user){
+  const main=document.getElementById("contentArea");
+  main.innerHTML=`<div class="card"><h2>Loading...</h2></div>`;
+  const id=user.id_number;
 
-  switch (page) {
-    case "home":
-      main.innerHTML = `<div class="card"><h2>Student Home</h2><p>Welcome back, ${user.full_name}!</p></div>`;
-      break;
+  if(page==="home"){main.innerHTML=`<div class="card"><h2>Welcome</h2><p>Hello ${user.full_name}, welcome back!</p></div>`;return;}
 
-    case "profile":
-      const { data: profile } = await supabase.from("tblstudent").select("*").eq("stuid", user.id_number).maybeSingle();
-      main.innerHTML = `
-        <div class="card">
-          <h2>My Profile</h2>
-          <p><strong>${profile.studentname}</strong><br>
-          ID: ${profile.stuid}<br>
-          Email: ${profile.studentemail}<br>
-          Address: ${profile.address}<br>
-          Contact: ${profile.contactnumber}</p>
-        </div>`;
-      break;
-
-    case "fees":
-      const { data: fees } = await supabase.from("tblfees").select("*").eq("stuid", user.id_number);
-      if (!fees || fees.length === 0) main.innerHTML = `<div class="card"><p>No fee records found.</p></div>`;
-      else {
-        main.innerHTML = `<div class="card"><h2>My Fees</h2>${fees.map(f => `<p>${f.term} - ₱${f.amount} (${f.status})</p>`).join("")}</div>`;
-      }
-      break;
-
-    case "grades":
-      const { data: grades } = await supabase.from("tblgrades").select("*").eq("stuid", user.id_number);
-      if (!grades || grades.length === 0) main.innerHTML = `<div class="card"><p>No grades found.</p></div>`;
-      else {
-        main.innerHTML = `<div class="card"><h2>My Grades</h2>${grades.map(g => `<p>${g.subject}: <strong>${g.grade}</strong></p>`).join("")}</div>`;
-      }
-      break;
-
-    default:
-      main.innerHTML = `<div class="card"><p>Feature under development.</p></div>`;
+  if(page==="profile"){
+    const {data:p}=await supabase.from("tblstudent").select("*").eq("stuid",id).maybeSingle();
+    main.innerHTML=`<div class="card"><h2>My Profile</h2><p><strong>${p.studentname}</strong><br>ID: ${p.stuid}<br>Email: ${p.studentemail}<br>Program: ${p.program}<br>Address: ${p.address}<br>Contact: ${p.contactnumber}</p></div>`;
+    return;
   }
+
+  if(page==="fees"){
+    const {data}=await supabase.from("tblfees").select("*").eq("stuid",id);
+    main.innerHTML=`<div class="card"><h2>My Fees</h2>${data.map(f=>`<p>${f.term} - ₱${f.amount} (${f.status})</p>`).join("")||"No fees found."}</div>`;
+    return;
+  }
+
+  if(page==="grades"){
+    const {data}=await supabase.from("tblgrades").select("*").eq("stuid",id);
+    main.innerHTML=`<div class="card"><h2>My Grades</h2>${data.map(g=>`<p>${g.subject}: <strong>${g.grade}</strong></p>`).join("")||"No grades found."}</div>`;
+    return;
+  }
+
+  if(page==="schedule"){
+    const {data}=await supabase.from("tblschedule").select("*").eq("stuid",id);
+    main.innerHTML=`<div class="card"><h2>My Schedule</h2>${data.map(s=>`<p>${s.day} ${s.time} - ${s.subject}</p>`).join("")||"No schedule yet."}</div>`;
+    return;
+  }
+
+  if(page==="transcript"){
+    const {data}=await supabase.from("tbltranscript").select("*").eq("stuid",id);
+    main.innerHTML=`<div class="card"><h2>My Transcript</h2>${data.map(t=>`<p>${t.course} (${t.term}): <strong>${t.grade}</strong></p>`).join("")||"No transcript data."}</div>`;
+    return;
+  }
+
+  if(page==="messages"){
+    const {data}=await supabase.from("tblmessages").select("*").eq("stuid",id);
+    main.innerHTML=`<div class="card"><h2>My Messages</h2>${data.map(m=>`<p><strong>${m.sender}</strong>: ${m.message}</p>`).join("")||"No messages."}</div>`;
+    return;
+  }
+
+  if(page==="requests"){
+    const {data}=await supabase.from("tblrequests").select("*").eq("stuid",id);
+    main.innerHTML=`<div class="card"><h2>My Requests</h2>${data.map(r=>`<p>${r.request_type} - ${r.status}</p>`).join("")||"No requests yet."}</div>`;
+    return;
+  }
+
+  if(page==="announcements"){
+    const {data}=await supabase.from("tblannouncements").select("*");
+    main.innerHTML=`<div class="card"><h2>Faculty Announcements</h2>${data.map(a=>`<p><strong>${a.title}</strong><br>${a.content}</p>`).join("")||"No announcements."}</div>`;
+    return;
+  }
+
+  if(page==="attendance"){
+    const {data}=await supabase.from("tblattendance").select("*").eq("stuid",id);
+    main.innerHTML=`<div class="card"><h2>My Attendance</h2>${data.map(att=>`<p>${att.date}: ${att.status}</p>`).join("")||"No attendance record."}</div>`;
+    return;
+  }
+
+  if(page==="clearance"){
+    const {data}=await supabase.from("tblclearance").select("*").eq("stuid",id);
+    main.innerHTML=`<div class="card"><h2>My Clearance</h2>${data.map(c=>`<p>${c.department}: ${c.status}</p>`).join("")||"No clearance record."}</div>`;
+    return;
+  }
+
+  if(page==="links"){
+    const {data}=await supabase.from("tbllinks").select("*");
+    main.innerHTML=`<div class="card"><h2>DSM External Links</h2>${data.map(l=>`<p><a href="${l.url}" target="_blank">${l.name}</a></p>`).join("")||"No links found."}</div>`;
+    return;
+  }
+
+  main.innerHTML=`<div class="card"><p>Feature under development.</p></div>`;
 }
 
-function logout() {
+function logout(){
   localStorage.removeItem("user");
-  window.location.href = "index.html";
+  window.location.href="index.html";
 }
 </script>
 </body>
