@@ -5,85 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Student Dashboard | FEBIAS College of Bible</title>
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
-
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-
-body {
-  background: #f5f8f6;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-header {
-  background: linear-gradient(90deg, #2e7d32, #d4af37);
-  color: white;
-  padding: 15px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
+body { background: #f5f8f6; min-height: 100vh; display: flex; flex-direction: column; }
+header { background: linear-gradient(90deg, #2e7d32, #d4af37); color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
 header h1 { font-size: 20px; letter-spacing: 1px; }
 header .term { font-size: 14px; opacity: 0.9; }
-
-nav {
-  background: #ffffff;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  display: flex;
-  justify-content: space-around;
-  padding: 10px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-nav a {
-  color: #2e7d32;
-  text-decoration: none;
-  font-weight: 600;
-  padding: 8px 15px;
-  border-radius: 8px;
-  transition: 0.2s;
-}
-
-nav a:hover { background: #2e7d32; color: white; }
-
-.main {
-  padding: 40px 20px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.card {
-  background: white;
-  border-radius: 15px;
-  padding: 25px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  margin-bottom: 25px;
-}
-
+nav { background: #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; justify-content: space-around; padding: 10px; position: sticky; top: 0; z-index: 100; }
+nav a { color: #2e7d32; text-decoration: none; font-weight: 600; padding: 8px 15px; border-radius: 8px; transition: 0.2s; }
+nav a:hover, nav a.active { background: #2e7d32; color: white; }
+.main { padding: 40px 20px; max-width: 900px; margin: 0 auto; }
+.card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
 h2 { color: #2e7d32; margin-bottom: 15px; font-size: 20px; }
 p { color: #444; line-height: 1.6; }
-
 .footer { text-align: center; padding: 15px; font-size: 13px; color: #888; }
-
-button.logout {
-  background: crimson;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
+button.logout { background: crimson; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
 button.logout:hover { background: darkred; }
 </style>
 </head>
-
 <body>
+
 <header>
   <div>
     <h1>FEBIAS College of Bible</h1>
@@ -94,81 +35,95 @@ button.logout:hover { background: darkred; }
 </header>
 
 <nav>
-  <a href="#">Home</a>
-  <a href="#">My Profile</a>
-  <a href="#">My Fees</a>
-  <a href="#">My Grades</a>
-  <a href="#">My Schedule</a>
-  <a href="#">My Transcript</a>
-  <a href="#">My Message</a>
-  <a href="#">My Request</a>
-  <a href="#">Faculty Announcements</a>
-  <a href="#">My Attendance</a>
-  <a href="#">My Clearance</a>
-  <a href="#">Registration Form</a>
-  <a href="#">DSM External Links</a>
+  <a href="#" data-page="home" class="active">Home</a>
+  <a href="#" data-page="profile">My Profile</a>
+  <a href="#" data-page="fees">My Fees</a>
+  <a href="#" data-page="grades">My Grades</a>
+  <a href="#" data-page="schedule">My Schedule</a>
+  <a href="#" data-page="transcript">My Transcript</a>
+  <a href="#" data-page="messages">My Message</a>
+  <a href="#" data-page="requests">My Request</a>
+  <a href="#" data-page="announcements">Faculty Announcements</a>
+  <a href="#" data-page="attendance">My Attendance</a>
+  <a href="#" data-page="clearance">My Clearance</a>
+  <a href="#" data-page="registration">Registration Form</a>
+  <a href="#" data-page="links">DSM External Links</a>
 </nav>
 
-<div class="main">
+<div class="main" id="contentArea">
   <div class="card">
     <h2>Student Home</h2>
     <p><strong>Success!</strong><br>Welcome, you have successfully logged in.</p>
-  </div>
-
-  <div class="card" id="studentInfo">
-    <h2>Student Information</h2>
-    <p>Loading student data...</p>
   </div>
 </div>
 
 <div class="footer">© 2025 FEBIAS College of Bible</div>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
-  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = "https://dlwytowtesllydqsiicv.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsd3l0b3d0ZXNsbHlkcXNpaWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NDE3NjcsImV4cCI6MjA3NzExNzc2N30.c1WESi7nCH6MPHgQc68OcFTVZ4OLLsyrh8Kjuf4Av1A";
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+document.addEventListener("DOMContentLoaded", async () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  if (!user || !user.id_number) {
-    window.location.href = "index.html";
-    return;
-  }
+  if (!user || !user.id_number) return (window.location.href = "index.html");
 
   document.getElementById("studentName").textContent = user.full_name;
 
-  const { data, error } = await supabase
-    .from("tblstudent")
-    .select("*")
-    .eq("stuid", user.id_number)
-    .maybeSingle();
-
-  const infoBox = document.getElementById("studentInfo");
-
-  if (error) {
-    console.error(error);
-    infoBox.innerHTML = "<p>⚠️ Error loading student info.</p>";
-    return;
-  }
-
-  if (!data) {
-    infoBox.innerHTML = "<p>❌ Student record not found.</p>";
-    return;
-  }
-
-  infoBox.innerHTML = `
-    <p>
-      <strong>${data.studentname}</strong><br>
-      ID: ${data.stuid}<br>
-      Class: ${data.studentclass || "N/A"}<br>
-      Gender: ${data.gender || "N/A"}<br>
-      Email: ${data.studentemail || "N/A"}<br>
-      Contact: ${data.contactnumber || "N/A"}<br>
-      Address: ${data.address || "N/A"}<br>
-      Date of Admission: ${new Date(data.dateofadmission).toLocaleDateString()}
-    </p>
-  `;
+  // Navbar interaction
+  document.querySelectorAll("nav a").forEach(a => {
+    a.addEventListener("click", async e => {
+      e.preventDefault();
+      document.querySelectorAll("nav a").forEach(x => x.classList.remove("active"));
+      a.classList.add("active");
+      const page = a.getAttribute("data-page");
+      await loadPage(page, user);
+    });
+  });
 });
+
+async function loadPage(page, user) {
+  const main = document.getElementById("contentArea");
+  main.innerHTML = `<div class="card"><h2>Loading...</h2></div>`;
+
+  switch (page) {
+    case "home":
+      main.innerHTML = `<div class="card"><h2>Student Home</h2><p>Welcome back, ${user.full_name}!</p></div>`;
+      break;
+
+    case "profile":
+      const { data: profile } = await supabase.from("tblstudent").select("*").eq("stuid", user.id_number).maybeSingle();
+      main.innerHTML = `
+        <div class="card">
+          <h2>My Profile</h2>
+          <p><strong>${profile.studentname}</strong><br>
+          ID: ${profile.stuid}<br>
+          Email: ${profile.studentemail}<br>
+          Address: ${profile.address}<br>
+          Contact: ${profile.contactnumber}</p>
+        </div>`;
+      break;
+
+    case "fees":
+      const { data: fees } = await supabase.from("tblfees").select("*").eq("stuid", user.id_number);
+      if (!fees || fees.length === 0) main.innerHTML = `<div class="card"><p>No fee records found.</p></div>`;
+      else {
+        main.innerHTML = `<div class="card"><h2>My Fees</h2>${fees.map(f => `<p>${f.term} - ₱${f.amount} (${f.status})</p>`).join("")}</div>`;
+      }
+      break;
+
+    case "grades":
+      const { data: grades } = await supabase.from("tblgrades").select("*").eq("stuid", user.id_number);
+      if (!grades || grades.length === 0) main.innerHTML = `<div class="card"><p>No grades found.</p></div>`;
+      else {
+        main.innerHTML = `<div class="card"><h2>My Grades</h2>${grades.map(g => `<p>${g.subject}: <strong>${g.grade}</strong></p>`).join("")}</div>`;
+      }
+      break;
+
+    default:
+      main.innerHTML = `<div class="card"><p>Feature under development.</p></div>`;
+  }
+}
 
 function logout() {
   localStorage.removeItem("user");
