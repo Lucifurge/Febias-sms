@@ -25,15 +25,8 @@ header {
   align-items: center;
 }
 
-header h1 {
-  font-size: 20px;
-  letter-spacing: 1px;
-}
-
-header .term {
-  font-size: 14px;
-  opacity: 0.9;
-}
+header h1 { font-size: 20px; letter-spacing: 1px; }
+header .term { font-size: 14px; opacity: 0.9; }
 
 nav {
   background: #ffffff;
@@ -55,10 +48,7 @@ nav a {
   transition: 0.2s;
 }
 
-nav a:hover {
-  background: #2e7d32;
-  color: white;
-}
+nav a:hover { background: #2e7d32; color: white; }
 
 .main {
   padding: 40px 20px;
@@ -74,23 +64,22 @@ nav a:hover {
   margin-bottom: 25px;
 }
 
-h2 {
-  color: #2e7d32;
-  margin-bottom: 15px;
-  font-size: 20px;
+h2 { color: #2e7d32; margin-bottom: 15px; font-size: 20px; }
+p { color: #444; line-height: 1.6; }
+
+.footer { text-align: center; padding: 15px; font-size: 13px; color: #888; }
+
+button.logout {
+  background: crimson;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-p {
-  color: #444;
-  line-height: 1.6;
-}
-
-.footer {
-  text-align: center;
-  padding: 15px;
-  font-size: 13px;
-  color: #888;
-}
+button.logout:hover { background: darkred; }
 </style>
 </head>
 
@@ -101,6 +90,7 @@ p {
     <div class="term">2025–2026 | 1st Term</div>
   </div>
   <div id="studentName">Loading...</div>
+  <button class="logout" onclick="logout()">Logout</button>
 </header>
 
 <nav>
@@ -140,39 +130,50 @@ document.addEventListener("DOMContentLoaded", async () => {
   const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
   const user = JSON.parse(localStorage.getItem("user"));
-  if (!user || !user.stuid) {
+  if (!user || !user.id_number) {
     window.location.href = "index.html";
     return;
   }
 
-  document.getElementById("studentName").textContent = `${user.lastname || ""}, ${user.firstname || ""}`;
+  document.getElementById("studentName").textContent = user.full_name;
 
-  // Fetch full record from tblstudent
   const { data, error } = await supabase
     .from("tblstudent")
     .select("*")
-    .eq("stuid", user.stuid)
+    .eq("stuid", user.id_number)
     .maybeSingle();
+
+  const infoBox = document.getElementById("studentInfo");
 
   if (error) {
     console.error(error);
-    document.getElementById("studentInfo").innerHTML = "<p>⚠️ Error loading student info.</p>";
+    infoBox.innerHTML = "<p>⚠️ Error loading student info.</p>";
     return;
   }
 
   if (!data) {
-    document.getElementById("studentInfo").innerHTML = "<p>❌ Student record not found.</p>";
+    infoBox.innerHTML = "<p>❌ Student record not found.</p>";
     return;
   }
 
-  // Display data
-  document.getElementById("studentInfo").innerHTML = `
-    <p><strong>${data.lastname}, ${data.firstname} ${data.middlename || ""}</strong><br>
-    ${data.stuid}<br>
-    ${data.course || "N/A"} (${data.major || "General"})<br>
-    ${data.schoolyear || "2025-2026"} | ${data.term || "1st Term"} Year ${data.yearlevel || "1st"}<br></p>
+  infoBox.innerHTML = `
+    <p>
+      <strong>${data.studentname}</strong><br>
+      ID: ${data.stuid}<br>
+      Class: ${data.studentclass || "N/A"}<br>
+      Gender: ${data.gender || "N/A"}<br>
+      Email: ${data.studentemail || "N/A"}<br>
+      Contact: ${data.contactnumber || "N/A"}<br>
+      Address: ${data.address || "N/A"}<br>
+      Date of Admission: ${new Date(data.dateofadmission).toLocaleDateString()}
+    </p>
   `;
 });
+
+function logout() {
+  localStorage.removeItem("user");
+  window.location.href = "index.html";
+}
 </script>
 </body>
 </html>
