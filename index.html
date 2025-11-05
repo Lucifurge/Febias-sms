@@ -3,54 +3,82 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Febias College of Bible - SMS</title>
+<title>Febias College of Bible - SMS 2025</title>
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
 
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
 
 body {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f9f9f9;
+  background: linear-gradient(135deg, #f9f9f9 0%, #f3f5ee 100%);
 }
 
 .container {
   background: #ffffff;
-  border-radius: 20px;
-  padding: 50px 40px;
-  width: 380px;
+  border-radius: 22px;
+  padding: 55px 45px;
+  width: 400px;
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1), 0 0 15px rgba(218,165,32,0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1), 0 0 25px rgba(218,165,32,0.25);
+  transition: all 0.35s ease;
+  animation: fadeIn 0.7s ease-out;
+  position: relative;
 }
 
 .container:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.15), 0 0 25px rgba(218,165,32,0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 0 30px rgba(218,165,32,0.35);
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  padding: 2px;
+  background: linear-gradient(135deg, #2e7d32, #d4af37);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .logo {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   color: #2e7d32;
   letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.year {
+  font-size: 13px;
+  color: #888;
   margin-bottom: 25px;
+  font-weight: 500;
 }
 
 h2 {
   color: #444;
-  margin-bottom: 30px;
-  font-weight: 500;
+  margin-bottom: 35px;
+  font-weight: 600;
+  font-size: 20px;
 }
 
 input, select {
   width: 100%;
-  padding: 14px;
+  padding: 14px 15px;
   margin: 12px 0;
-  border: 1px solid #c9d6cc;
+  border: 1px solid #d8dfd6;
   border-radius: 10px;
   outline: none;
   font-size: 14px;
@@ -60,7 +88,8 @@ input, select {
 
 input:focus, select:focus {
   border-color: #2e7d32;
-  box-shadow: 0 0 8px rgba(46,125,50,0.3);
+  box-shadow: 0 0 10px rgba(46,125,50,0.35);
+  background: #ffffff;
 }
 
 button {
@@ -73,17 +102,18 @@ button {
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  transition: 0.3s;
-  margin-top: 15px;
+  transition: 0.35s;
+  margin-top: 18px;
 }
 
 button:hover {
   background: linear-gradient(90deg, #2e7d32, #d4af37);
-  box-shadow: 0 5px 15px rgba(46,125,50,0.3), 0 0 15px rgba(218,165,32,0.2);
+  box-shadow: 0 6px 18px rgba(46,125,50,0.35), 0 0 15px rgba(218,165,32,0.25);
+  transform: translateY(-1px);
 }
 
 .footer {
-  margin-top: 25px;
+  margin-top: 28px;
   font-size: 13px;
   color: #888;
 }
@@ -92,24 +122,20 @@ button:hover {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-.container {
-  animation: fadeIn 0.6s ease-out;
-}
 </style>
 </head>
 
 <body>
 <div class="container">
   <div class="logo">Febias College of Bible</div>
-  <h2>School Management System</h2>
+  <div class="year">2025 - 2026 | School Management System</div>
+  <h2>Login Portal</h2>
 
   <form id="loginForm">
     <select id="role" required>
       <option value="">Select Role</option>
       <option value="student">Student</option>
       <option value="staff">Staff</option>
-      <option value="admin">Admin / Dean</option>
     </select>
 
     <input type="text" id="idNumber" placeholder="Enter your ID Number (e.g. 2025-035)" required>
@@ -150,8 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
         table = "tblstudent";
         idField = "stuid";
         redirectPage = "student.html";
-      } else if (role === "staff" || role === "admin" || role.includes("dean")) {
-        // both dean and admin use same table and page
+      } else if (role === "staff") {
         table = "users";
         idField = "real_id";
         redirectPage = "home.html";
@@ -173,23 +198,19 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Simple password check (temporary)
       if (data.password !== password) {
         alert("❌ Incorrect password.");
         return;
       }
 
-      // Store complete user info for home.html to read
       const userData = {
         id_number: data[idField],
         full_name: data.full_name || data.name || "Unnamed User",
-        role: role.includes("dean") ? "dean" : role,
+        role: role,
         department_id: data.department_id || null
       };
 
       localStorage.setItem("user", JSON.stringify(userData));
-
-      // Redirect based on role
       window.location.href = redirectPage;
 
     } catch (err) {
